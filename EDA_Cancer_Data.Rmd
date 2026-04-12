@@ -1,0 +1,481 @@
+---
+title: "Primer Avance Proyecto Final - Cancer Data"
+author: "Tus Nombres Aquí"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+# Propósito del Trabajo
+
+(Escribe aquí el propósito del análisis, destacando la búsqueda de patrones para diferenciar diagnósticos benignos y malignos).
+
+# 1. Dataset
+
+```{r preparacion}
+# Instalación y carga automática de paquetes faltantes
+paquetes <- c("tidyverse", "corrplot", "GGally", "MASS", "gridExtra")
+paquetes_faltantes <- paquetes[!(paquetes %in% installed.packages()[,"Package"])]
+if(length(paquetes_faltantes)) {
+  install.packages(paquetes_faltantes, repos = "http://cran.us.r-project.org")
+}
+
+library(tidyverse)
+library(corrplot)
+library(GGally)
+library(MASS)
+library(gridExtra)
+
+# Lectura de los datos
+data <- read_csv('Cancer_Data.csv', show_col_types = FALSE)
+
+# Arreglar los nombres de columnas para que los espacios sean reemplazados por puntos automáticamente
+names(data) <- make.names(names(data))
+
+head(data, 5)
+```
+
+## Descripción del conjunto de datos
+(Escribe aquí la fuente del dataset, número de registros y descripción general)
+
+## Tipo de variables
+(Describe brevemente las variables numéricas y categóricas presentes)
+
+## Justificación
+(Explica por qué este dataset es apropiado para un análisis multivariado)
+
+# 2. Limpieza de datos
+
+```{r limpieza}
+# 1. Eliminar columnas residuales (como X que se crea al importar si hay coma al final)
+data_clean <- data %>%
+  dplyr::select(where(~!all(is.na(.))))
+
+# 2. Corrección de tipos de datos
+data_clean$diagnosis <- as.factor(data_clean$diagnosis)
+
+# 3. Valores nulos
+sum_na <- colSums(is.na(data_clean))
+sum_na[sum_na > 0] # Mostrar solo si existen columnas con NA
+
+# 4. Eliminación de duplicados
+data_clean <- data_clean %>% distinct()
+
+# Dataset puramente numérico
+data_num <- data_clean %>% dplyr::select(where(is.numeric), -id)
+```
+
+### Interpretación
+(Redacta aquí qué encontraste en la limpieza, si había nulos o duplicados y qué acciones tomaste)
+
+
+# 3. Análisis univariado
+
+## Medidas descriptivas
+
+```{r descriptivas}
+# Media, Mediana y Desviación estándar
+medidas_resumen <- data.frame(
+  Media = apply(data_num, 2, mean),
+  Mediana = apply(data_num, 2, median),
+  Desviacion = apply(data_num, 2, sd)
+)
+
+head(medidas_resumen, 10)
+```
+
+### Análisis Individual por Variable
+
+A petición, graficaremos cada variable *de forma individual* para facilitar su lectura y análisis detallado.
+
+```{r func_plot, echo=FALSE}
+# Función de ayuda para no repetir todo el bloque de código de ggplot 30 veces
+generar_graficos_variable <- function(var_name) {
+  p1 <- ggplot(data_clean, aes_string(x = var_name)) +
+    geom_histogram(bins = 30, fill = "steelblue", color = "black", alpha = 0.7) +
+    labs(title = paste("Histograma de", var_name), x = var_name, y = "Frecuencia") +
+    theme_minimal()
+  
+  p2 <- ggplot(data_clean, aes_string(x = "diagnosis", y = var_name, fill = "diagnosis")) +
+    geom_boxplot(alpha = 0.7, outlier.colour = "black") +
+    scale_fill_manual(values = c("B" = "lightgreen", "M" = "salmon")) +
+    labs(title = paste("Boxplot de", var_name), x = "Diagnóstico", y = var_name) +
+    theme_minimal() +
+    theme(legend.position = "none")
+  
+  grid.arrange(p1, p2, ncol = 2)
+}
+```
+
+#### Variables de Media (Mean)
+
+**Variable: radius_mean**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("radius_mean")
+```
+> **Interpretación:** (Escribe aquí tu análisis sobre la distribución de radius_mean y cómo diferencia los grupos)
+
+**Variable: texture_mean**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("texture_mean")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: perimeter_mean**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("perimeter_mean")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: area_mean**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("area_mean")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: smoothness_mean**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("smoothness_mean")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: compactness_mean**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("compactness_mean")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: concavity_mean**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("concavity_mean")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: concave.points_mean**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("concave.points_mean")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: symmetry_mean**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("symmetry_mean")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: fractal_dimension_mean**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("fractal_dimension_mean")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+
+#### Variables de Error Estándar (SE)
+
+**Variable: radius_se**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("radius_se")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: texture_se**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("texture_se")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: perimeter_se**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("perimeter_se")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: area_se**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("area_se")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: smoothness_se**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("smoothness_se")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: compactness_se**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("compactness_se")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: concavity_se**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("concavity_se")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: concave.points_se**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("concave.points_se")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: symmetry_se**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("symmetry_se")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: fractal_dimension_se**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("fractal_dimension_se")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+
+#### Variables Peor Escenario (Worst)
+
+**Variable: radius_worst**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("radius_worst")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: texture_worst**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("texture_worst")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: perimeter_worst**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("perimeter_worst")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: area_worst**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("area_worst")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: smoothness_worst**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("smoothness_worst")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: compactness_worst**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("compactness_worst")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: concavity_worst**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("concavity_worst")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: concave.points_worst**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("concave.points_worst")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: symmetry_worst**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("symmetry_worst")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+**Variable: fractal_dimension_worst**
+```{r, fig.width=10, fig.height=4, echo=FALSE}
+generar_graficos_variable("fractal_dimension_worst")
+```
+> **Interpretación:** (Escribe aquí tu análisis)
+
+
+# 4. Análisis bivariado
+
+## Matriz de correlación visual
+
+Para observar relaciones bivariadas de todo el esqueleto, la matriz de correlación es la mejor visualización:
+
+```{r correlacion_visual, fig.width=10, fig.height=10}
+mat_cor <- cor(data_num)
+
+corrplot(
+  mat_cor,
+  method = "color",
+  type = "upper",
+  addCoef.col = NULL, 
+  tl.col = "black",
+  tl.srt = 45,
+  tl.cex = 0.7,
+  title = "Matriz de correlación agrupada",
+  mar = c(0, 0, 1, 0)
+)
+```
+
+### Interpretación de la Matriz de Correlación
+(Escribe aquí las relaciones lineales encontradas y qué variables son redundantes)
+
+
+## Matriz de Scatterplots Separadas
+
+En vez de hacer un ggpairs incomprensible de 30 variables, los hemos separado por sus subgrupos lógicos, para que sea mucho más sencillo de interpretar individualmente.
+
+### Scatterplots: Variables *_mean*
+
+```{r ggpairs_mean, fig.width=14, fig.height=14, message=FALSE, warning=FALSE}
+vars_mean <- grep("_mean$", names(data_clean), value = TRUE)
+ggpairs(data_clean, columns = vars_mean, 
+        mapping = aes(color = diagnosis, alpha = 0.6), 
+        progress = FALSE) + 
+  theme_minimal()
+```
+
+> **Interpretación variables _mean:**
+(Interpreta las asociaciones, dependencias y solapamientos de este grupo aquí)
+
+
+### Scatterplots: Variables *_se* (Error Estándar)
+
+```{r ggpairs_se, fig.width=14, fig.height=14, message=FALSE, warning=FALSE}
+vars_se <- grep("_se$", names(data_clean), value = TRUE)
+ggpairs(data_clean, columns = vars_se, 
+        mapping = aes(color = diagnosis, alpha = 0.6), 
+        progress = FALSE) + 
+  theme_minimal()
+```
+
+> **Interpretación variables _se:**
+(Escribe tu análisis sobre la relación de errores estándar aquí)
+
+
+### Scatterplots: Variables *_worst* (Peor escenario)
+
+```{r ggpairs_worst, fig.width=14, fig.height=14, message=FALSE, warning=FALSE}
+vars_worst <- grep("_worst$", names(data_clean), value = TRUE)
+ggpairs(data_clean, columns = vars_worst, 
+        mapping = aes(color = diagnosis, alpha = 0.6), 
+        progress = FALSE) + 
+  theme_minimal()
+```
+
+> **Interpretación variables _worst:**
+(Escribe tu análisis sobre las relaciones en las métricas máximas aquí)
+
+
+# 5. Primeros hallazgos
+
+(Escribe aquí:
+- Identificación de patrones iniciales en los datos basándote en los subgrupos anteriores.
+- Qué variables consideras más relevantes para distinguir Benigno de Maligno.)
+
+
+# 6. Análisis multivariado básico
+
+## Coordenadas paralelas
+
+Para evaluar cómo un registro de tumor M o B viaja a lo largo de todo su perfil multivariado, es necesario estandarizarlas juntas.
+
+```{r coord_paralela_ggally, fig.width=14, fig.height=6}
+ggparcoord(
+  data_clean %>% dplyr::select(-id),
+  columns = 2:31,
+  groupColumn = "diagnosis",
+  scale = "std",
+  alphaLines = 0.3
+) +
+  scale_color_manual(values = c("B" = "steelblue", "M" = "tomato")) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(
+    title = "Coordenadas Paralelas (Datos Estandarizados Z)",
+    x = "Variable",
+    y = "Puntuación Z"
+  )
+```
+
+### Interpretación
+(Escribe aquí argumentando:
+- ¿Qué variables se transitan juntas?
+- ¿Qué patrones globales se observan arriba o abajo de la media?
+- ¿Existen perfiles homogéneos para los tumores?)
+
+
+# 7. Medidas descriptivas multivariantes gráficas
+
+Ya no queremos simplemente los números crudos, queremos darles contexto visual:
+
+## Localización: Media vectorial en Barplot
+
+Representaremos las "medias" de las 30 dimensiones. Dado que las escalas originales varían de 0.01 a 1000+, usamos una **escala logarítmica (Log10)** para que la magnitud sea visualmente comparable en este resumen multivariante de localización.
+
+```{r media_vector}
+media_vectorial <- colMeans(data_num)
+
+df_media <- data.frame(
+  Variable = names(media_vectorial),
+  Media = media_vectorial
+)
+
+ggplot(df_media, aes(x = reorder(Variable, Media), y = Media)) +
+  geom_col(fill = "dodgerblue", alpha = 0.8) +
+  coord_flip() +
+  scale_y_log10() + 
+  theme_minimal() +
+  labs(
+    title = "Media Vectorial (Localización)", 
+    subtitle = "Expresado en escala logarítmica",
+    x = "Variable Métrica", 
+    y = "Media (Log10)"
+  )
+```
+
+## Dispersión: Heatmap de Matriz de Covarianza
+
+Una representación visual de la dispersión conjunta. Usamos la magnitud absoluta de la covarianza en escala Log10, que es lo más adecuado cuando se comparan covarianzas crudas que explotan a números altísimos.
+
+```{r covarianza_heatmap, fig.width=10, fig.height=10}
+mat_cov <- cov(data_num)
+
+# Transformación larga
+cov_largo <- as.data.frame(as.table(mat_cov))
+colnames(cov_largo) <- c("Var1", "Var2", "Covarianza")
+
+ggplot(cov_largo, aes(x = Var1, y = Var2, fill = log10(abs(Covarianza) + 1e-5))) +
+  geom_tile(color = "white") +
+  scale_fill_viridis_c(option = "magma", name = "Log10(|Cov|)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(
+    title = "Mapa de Calor de Covarianzas (Dispersión Multivariante)",
+    x = "", y = ""
+  )
+```
+
+*Nota para dependencia: La dependencia (Correlación Multivariante) ya está graficada exahustivamente en la sección 4.*
+
+### Interpretación Multivariante
+(Responde las tres preguntas guía basándote en las gráficas superiores:
+- ¿Qué tan dispersos están los datos según el nivel de calor del mapa de covarianzas?
+- ¿Qué variables varían más? (Mira en la barra logarítmica y el contraste del heatmap)
+- ¿Cómo se relacionan entre sí a nivel matricial conjunto?)
+
+
+# 8. Interpretación global
+
+(Escribe la gran conclusión global de esta parte de la entrega apoyando tus ideas de los campos de cada Variable separados:
+- ¿Qué patrones encontraron en los 3 subgrupos (mean, se, worst)?
+- ¿Qué variables dominan el comportamiento definitivamente?
+- ¿Qué conclusiones médicas/predictivas pueden obtener?
+- ¿Qué tipo de problema de ML podría resolverse con estos datos?)

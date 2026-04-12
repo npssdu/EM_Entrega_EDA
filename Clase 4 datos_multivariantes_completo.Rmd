@@ -1,6 +1,6 @@
 ---
-title: "Estadística Multidimensional - Datos Multivariantes"
-author: "Clase"
+title: "Primer Avance Proyecto Final"
+author: "Julian Cabrera, Nelson Posso, Jaider Carvajal, Andres Carvajal, Mauricio Sanchez"
 output:
   html_document:
     toc: true
@@ -12,40 +12,24 @@ output:
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
-# Propósito de la clase
+# Propósito del Trabajo
 
-En estadística multivariante, cada observación no se describe con un solo valor, sino con **varias variables al mismo tiempo**.  
-Por eso, el análisis ya no se limita a estudiar una distribución aislada, sino a comprender:
+Se busca analizar el dataset de Cancer_Data.csv y cada variable para identificar las características clínicas medidas en tumores mamarios para diferenciar entre diagnósticos **benignos (B)** y **malignos (M)**, identificando patrones que permitan apoyar una clasificación temprana y confiable.
 
-- cómo se distribuye cada variable,
-- cómo cambian las variables entre sí,
-- cómo se comportan conjuntamente las observaciones,
-- y qué patrones, grupos o atípicos aparecen cuando se consideran varias dimensiones a la vez.
+# Dataset
+- Este dataset es tomado de kaggle y contiene información del cancer de 354 pacientes con 34 columnas en las cuales podemos encontrar el diagnostico del paciente y las variables del tumor
 
-En este documento se desarrolla el bloque de **Datos multivariantes** usando el conjunto de datos `iris`, porque contiene:
 
-- 4 variables numéricas continuas:
-  - `Sepal.Length`
-  - `Sepal.Width`
-  - `Petal.Length`
-  - `Petal.Width`
-- 1 variable categórica:
-  - `Species`
+#Instalación Paquetes
+install.packages(c('quantmod','ff','foreign','R.matlab'),dependency=T)
 
-Esto permite combinar **explicación conceptual**, **visualización**, **interpretación** y **medidas descriptivas multivariantes**.
+suppressPackageStartupMessages(library(tidyverse))
 
 # Preparación del entorno
 
 ```{r}
-rm(list = ls())
-data("iris")
-
-head(iris)
-str(iris)
-summary(iris)
-
-datos_num <- iris[, 1:4]
-grupo <- iris$Species
+data1 <- read_csv('Cancer_Data.csv',show_col_types = FALSE)
+head(data1, 5)
 ```
 
 ## Qué se debe entender aquí
