@@ -20,7 +20,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 ```{r preparacion}
 # Instalación y carga automática de paquetes faltantes
-paquetes <- c("tidyverse", "corrplot", "GGally", "MASS", "gridExtra")
+paquetes <- c("tidyverse", "corrplot", "GGally", "MASS", "gridExtra", "plotly", "htmltools")
 paquetes_faltantes <- paquetes[!(paquetes %in% installed.packages()[,"Package"])]
 if(length(paquetes_faltantes)) {
   install.packages(paquetes_faltantes, repos = "http://cran.us.r-project.org")
@@ -31,6 +31,8 @@ library(corrplot)
 library(GGally)
 library(MASS)
 library(gridExtra)
+library(plotly)
+library(htmltools)
 
 # Lectura de los datos
 data <- read_csv('Cancer_Data.csv', show_col_types = FALSE)
@@ -67,8 +69,11 @@ sum_na[sum_na > 0] # Mostrar solo si existen columnas con NA
 # 4. Eliminación de duplicados
 data_clean <- data_clean %>% distinct()
 
+# 5. Filtrar solo variables de la media (mean)
+data_clean <- data_clean %>% dplyr::select(diagnosis, ends_with("_mean"))
+
 # Dataset puramente numérico
-data_num <- data_clean %>% dplyr::select(where(is.numeric), -id)
+data_num <- data_clean %>% dplyr::select(where(is.numeric))
 ```
 
 ### Interpretación
@@ -115,27 +120,18 @@ generar_graficos_variable <- function(var_name) {
 
 #### Variables de Media (Mean)
 
-**Variable: radius_mean**
+**Dimensión de Tamaño: radius_mean, perimeter_mean y area_mean**
+
+*Nota: Dado que el radio, el perímetro y el área representan la misma característica estructural del tumor y están altamente correlacionadas (colinealidad), se analizan aquí como una única métrica conjunta representándola a través del radio.*
+
 ```{r, fig.width=10, fig.height=4, echo=FALSE}
 generar_graficos_variable("radius_mean")
 ```
-> **Interpretación:** (Escribe aquí tu análisis sobre la distribución de radius_mean y cómo diferencia los grupos)
+> **Interpretación de Tamaño:** (Escribe aquí tu análisis sobre la distribución del tamaño del tumor -representado por el radio- y cómo diferencia los grupos. Analizar esta variable representa a area_mean y perimeter_mean).
 
 **Variable: texture_mean**
 ```{r, fig.width=10, fig.height=4, echo=FALSE}
 generar_graficos_variable("texture_mean")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: perimeter_mean**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("perimeter_mean")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: area_mean**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("area_mean")
 ```
 > **Interpretación:** (Escribe aquí tu análisis)
 
@@ -176,131 +172,6 @@ generar_graficos_variable("fractal_dimension_mean")
 > **Interpretación:** (Escribe aquí tu análisis)
 
 
-#### Variables de Error Estándar (SE)
-
-**Variable: radius_se**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("radius_se")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: texture_se**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("texture_se")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: perimeter_se**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("perimeter_se")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: area_se**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("area_se")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: smoothness_se**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("smoothness_se")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: compactness_se**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("compactness_se")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: concavity_se**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("concavity_se")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: concave.points_se**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("concave.points_se")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: symmetry_se**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("symmetry_se")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: fractal_dimension_se**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("fractal_dimension_se")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-
-#### Variables Peor Escenario (Worst)
-
-**Variable: radius_worst**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("radius_worst")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: texture_worst**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("texture_worst")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: perimeter_worst**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("perimeter_worst")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: area_worst**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("area_worst")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: smoothness_worst**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("smoothness_worst")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: compactness_worst**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("compactness_worst")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: concavity_worst**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("concavity_worst")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: concave.points_worst**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("concave.points_worst")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: symmetry_worst**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("symmetry_worst")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
-**Variable: fractal_dimension_worst**
-```{r, fig.width=10, fig.height=4, echo=FALSE}
-generar_graficos_variable("fractal_dimension_worst")
-```
-> **Interpretación:** (Escribe aquí tu análisis)
-
 
 # 4. Análisis bivariado
 
@@ -309,7 +180,10 @@ generar_graficos_variable("fractal_dimension_worst")
 Para observar relaciones bivariadas de todo el esqueleto, la matriz de correlación es la mejor visualización:
 
 ```{r correlacion_visual, fig.width=10, fig.height=10}
-mat_cor <- cor(data_num)
+# Para evitar redundancia, aplicamos el concepto de dimensión única al Tamaño, 
+# dejando "area_mean" y retirando "radius_mean" y "perimeter_mean"
+data_num_reducido <- data_num %>% dplyr::select(-radius_mean, -perimeter_mean)
+mat_cor <- cor(data_num_reducido)
 
 corrplot(
   mat_cor,
@@ -328,50 +202,25 @@ corrplot(
 (Escribe aquí las relaciones lineales encontradas y qué variables son redundantes)
 
 
-## Matriz de Scatterplots Separadas
+## Matriz de Scatterplots
 
-En vez de hacer un ggpairs incomprensible de 30 variables, los hemos separado por sus subgrupos lógicos, para que sea mucho más sencillo de interpretar individualmente.
+A continuación observamos las relaciones bivariadas combinadas, lo cual es de fácil visibilidad dado que hemos reducido nuestro dataset solo a los valores de medias.
 
 ### Scatterplots: Variables *_mean*
 
 ```{r ggpairs_mean, fig.width=14, fig.height=14, message=FALSE, warning=FALSE}
 vars_mean <- grep("_mean$", names(data_clean), value = TRUE)
-ggpairs(data_clean, columns = vars_mean, 
+# Dejamos solo area_mean como representante del subgrupo de tamaño
+vars_mean_reducido <- setdiff(vars_mean, c("radius_mean", "perimeter_mean"))
+
+ggpairs(data_clean, columns = vars_mean_reducido, 
         mapping = aes(color = diagnosis, alpha = 0.6), 
         progress = FALSE) + 
   theme_minimal()
 ```
 
 > **Interpretación variables _mean:**
-(Interpreta las asociaciones, dependencias y solapamientos de este grupo aquí)
-
-
-### Scatterplots: Variables *_se* (Error Estándar)
-
-```{r ggpairs_se, fig.width=14, fig.height=14, message=FALSE, warning=FALSE}
-vars_se <- grep("_se$", names(data_clean), value = TRUE)
-ggpairs(data_clean, columns = vars_se, 
-        mapping = aes(color = diagnosis, alpha = 0.6), 
-        progress = FALSE) + 
-  theme_minimal()
-```
-
-> **Interpretación variables _se:**
-(Escribe tu análisis sobre la relación de errores estándar aquí)
-
-
-### Scatterplots: Variables *_worst* (Peor escenario)
-
-```{r ggpairs_worst, fig.width=14, fig.height=14, message=FALSE, warning=FALSE}
-vars_worst <- grep("_worst$", names(data_clean), value = TRUE)
-ggpairs(data_clean, columns = vars_worst, 
-        mapping = aes(color = diagnosis, alpha = 0.6), 
-        progress = FALSE) + 
-  theme_minimal()
-```
-
-> **Interpretación variables _worst:**
-(Escribe tu análisis sobre las relaciones en las métricas máximas aquí)
+(Interpreta las asociaciones, dependencias y solapamientos de este grupo aquí. Haz énfasis en la alta redundancia y correlación de las dimensiones de tamaño vistas como un solo fenómeno).
 
 
 # 5. Primeros hallazgos
@@ -389,8 +238,8 @@ Para evaluar cómo un registro de tumor M o B viaja a lo largo de todo su perfil
 
 ```{r coord_paralela_ggally, fig.width=14, fig.height=6}
 ggparcoord(
-  data_clean %>% dplyr::select(-id),
-  columns = 2:31,
+  data_clean,
+  columns = 2:ncol(data_clean),
   groupColumn = "diagnosis",
   scale = "std",
   alphaLines = 0.3
@@ -412,13 +261,51 @@ ggparcoord(
 - ¿Existen perfiles homogéneos para los tumores?)
 
 
+## Gráficos 3D Interactivos
+
+Para observar el comportamiento en el espacio tridimensional y evidenciar la separabilidad de clases, fijaremos `area_mean` (eje X) y `texture_mean` (eje Y) como anclas, mientras iteramos el resto de variables como el eje Z.
+
+```{r interactivo_3d, message=FALSE, warning=FALSE}
+# Identificar las variables restantes (quitando diagnosis, area_mean, texture_mean y las redundantes de tamaño)
+vars_z <- setdiff(names(data_clean), c("diagnosis", "area_mean", "texture_mean", "radius_mean", "perimeter_mean"))
+
+# Crear gráfica interactiva 3D para cada variable Z restante
+graficas_3d <- lapply(vars_z, function(v) {
+  plot_ly(data_clean, 
+          x = ~area_mean, 
+          y = ~texture_mean, 
+          z = as.formula(paste0("~", v)), 
+          color = ~diagnosis, 
+          colors = c("B" = "steelblue", "M" = "tomato"),
+          type = "scatter3d", 
+          mode = "markers", 
+          marker = list(size = 4, opacity = 0.7)) %>%
+    layout(
+      title = paste("Área vs Textura vs", v),
+      scene = list(
+        xaxis = list(title = "Area"),
+        yaxis = list(title = "Texture"),
+        zaxis = list(title = paste(v))
+      ),
+      margin = list(l = 0, r = 0, b = 0, t = 40)
+    )
+})
+
+# Renderizar en el documento
+htmltools::browsable(htmltools::tagList(graficas_3d))
+```
+
+> **Interpretación Gráficas 3D:**
+(Interpreta cómo la adición de una tercera dimensión altera tu comprensión de los datos. Señala qué variable evaluada en el eje Z proporciona la separación de clústeres más notoria al combinarse con Área y Textura.)
+
+
 # 7. Medidas descriptivas multivariantes gráficas
 
 Ya no queremos simplemente los números crudos, queremos darles contexto visual:
 
 ## Localización: Media vectorial en Barplot
 
-Representaremos las "medias" de las 30 dimensiones. Dado que las escalas originales varían de 0.01 a 1000+, usamos una **escala logarítmica (Log10)** para que la magnitud sea visualmente comparable en este resumen multivariante de localización.
+Representaremos las "medias" de nuestras variables. Dado que las escalas originales pueden variar, usamos una **escala logarítmica (Log10)** para que la magnitud sea visualmente comparable en este resumen multivariante de localización.
 
 ```{r media_vector}
 media_vectorial <- colMeans(data_num)
@@ -475,7 +362,7 @@ ggplot(cov_largo, aes(x = Var1, y = Var2, fill = log10(abs(Covarianza) + 1e-5)))
 # 8. Interpretación global
 
 (Escribe la gran conclusión global de esta parte de la entrega apoyando tus ideas de los campos de cada Variable separados:
-- ¿Qué patrones encontraron en los 3 subgrupos (mean, se, worst)?
+- ¿Qué patrones encontraron en los valores de medias (mean) y su dimensión unificada de tamaño?
 - ¿Qué variables dominan el comportamiento definitivamente?
 - ¿Qué conclusiones médicas/predictivas pueden obtener?
 - ¿Qué tipo de problema de ML podría resolverse con estos datos?)
