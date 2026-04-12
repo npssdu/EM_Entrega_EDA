@@ -361,8 +361,115 @@ ggplot(cov_largo, aes(x = Var1, y = Var2, fill = log10(abs(Covarianza) + 1e-5)))
 
 # 8. Interpretación global
 
-(Escribe la gran conclusión global de esta parte de la entrega apoyando tus ideas de los campos de cada Variable separados:
-- ¿Qué patrones encontraron en los valores de medias (mean) y su dimensión unificada de tamaño?
-- ¿Qué variables dominan el comportamiento definitivamente?
-- ¿Qué conclusiones médicas/predictivas pueden obtener?
-- ¿Qué tipo de problema de ML podría resolverse con estos datos?)
+## Cálculos de soporte para la interpretación global
+
+```{r interpretacion_global_calculos}
+# 1) Correlaciones altas para evidenciar redundancia/colinealidad
+mat_cor_global <- cor(data_num)
+cor_df <- as.data.frame(as.table(mat_cor_global))
+colnames(cor_df) <- c("Var1", "Var2", "Cor")
+
+cor_altas <- cor_df %>%
+  filter(Var1 != Var2) %>%
+  mutate(par = paste(pmin(as.character(Var1), as.character(Var2)),
+                     pmax(as.character(Var1), as.character(Var2)), sep = "__")) %>%
+  distinct(par, .keep_all = TRUE) %>%
+  mutate(abs_cor = abs(Cor)) %>%
+  filter(abs_cor >= 0.75) %>%
+  arrange(desc(abs_cor))
+
+head(cor_altas, 10)
+
+# 2) Variables más discriminantes por tamaño de efecto (Cohen's d)
+cohens_d <- function(x, g) {
+  x1 <- x[g == "M"]
+  x0 <- x[g == "B"]
+  n1 <- length(x1)
+  n0 <- length(x0)
+  s1 <- sd(x1)
+  s0 <- sd(x0)
+  s_pooled <- sqrt(((n1 - 1) * s1^2 + (n0 - 1) * s0^2) / (n1 + n0 - 2))
+  (mean(x1) - mean(x0)) / s_pooled
+}
+
+efectos <- sapply(data_num, cohens_d, g = data_clean$diagnosis)
+tabla_efectos <- data.frame(
+  variable = names(efectos),
+  cohen_d = as.numeric(efectos),
+  abs_d = abs(as.numeric(efectos))
+) %>%
+  arrange(desc(abs_d))
+
+head(tabla_efectos, 10)
+
+# 3) Dominancia multivariante por PCA (sobre variables estandarizadas)
+pca_global <- prcomp(data_num, scale. = TRUE)
+var_exp <- (pca_global$sdev^2) / sum(pca_global$sdev^2)
+var_acum <- cumsum(var_exp)
+
+tabla_pca <- data.frame(
+  Componente = paste0("PC", seq_along(var_exp)),
+  Varianza = round(var_exp, 4),
+  Varianza_Acumulada = round(var_acum, 4)
+)
+
+head(tabla_pca, 5)
+
+# 4) Cargas absolutas en PC1 para identificar variables dominantes
+cargas_pc1 <- data.frame(
+  variable = rownames(pca_global$rotation),
+  loading_pc1 = pca_global$rotation[, 1],
+  abs_loading_pc1 = abs(pca_global$rotation[, 1])
+) %>%
+  arrange(desc(abs_loading_pc1))
+
+head(cargas_pc1, 10)
+```
+
+## ¿Qué patrones encontraron?
+
+Los patrones más claros del EDA son los siguientes:
+
+1. Existe una separación estructural entre tumores benignos (B) y malignos (M), visible en distribuciones y boxplots de variables de forma/tamaño.
+2. Hay colinealidad alta en el bloque de tamaño (radio, perímetro, área), y por eso modelar estas variables como una dimensión conjunta es metodológicamente correcto.
+3. El número de pares con correlación alta ($|r| \ge 0.75$) confirma redundancia informativa en varias variables *_mean*.
+4. En coordenadas paralelas, los tumores malignos tienden a perfiles simultáneamente altos en irregularidad (concavity, concave points, compactness) y tamaño.
+
+En términos prácticos, el dataset no es un conjunto de variables independientes: es un sistema multivariado con bloques de variables que se mueven juntas.
+
+## ¿Qué variables dominan el comportamiento?
+
+Con base en el ranking por tamaño de efecto (Cohen's d), las variables que más discriminan entre M y B son típicamente:
+
+1. `concave.points_mean`
+2. `concavity_mean`
+3. `radius_mean` / `perimeter_mean` / `area_mean` (misma dimensión de tamaño)
+4. `compactness_mean`
+
+Adicionalmente, el PCA muestra que:
+
+1. La primera componente concentra gran parte de la variabilidad global.
+2. Las mayores cargas absolutas en PC1 corresponden a variables de tamaño e irregularidad de borde.
+3. Esto confirma que el comportamiento del dataset está dominado por dos ejes clínicamente coherentes: tamaño tumoral e irregularidad morfológica.
+
+## ¿Qué conclusiones pueden obtener?
+
+1. El conjunto de variables *_mean* sí contiene señal discriminante fuerte para distinguir benigno vs maligno.
+2. La redundancia observada no es un problema, pero exige reducción de dimensionalidad o selección de variables para evitar sobreajuste.
+3. Desde el punto de vista clínico, mayor tamaño e irregularidad de contorno se asocian con mayor probabilidad de malignidad.
+4. Desde el punto de vista estadístico, este es un caso ideal para modelado supervisado con preprocesamiento (estandarización + control de colinealidad).
+
+## ¿Qué tipo de problema podría resolverse con estos datos?
+
+El problema principal es una **clasificación binaria supervisada**:
+
+1. Objetivo: predecir `diagnosis` (B vs M).
+2. Variables predictoras: bloque de características radiológicas *_mean*.
+3. Modelos adecuados: regresión logística, SVM, Random Forest, XGBoost.
+4. Métricas recomendadas: AUC, sensibilidad, especificidad, F1 y matriz de confusión.
+
+Como extensión, también se puede abordar un problema de **segmentación de perfiles tumorales** (clustering) para identificar subgrupos dentro de cada diagnóstico.
+
+## Cierre profesional
+
+En síntesis, el EDA demuestra que el dataset tiene estructura multivariada consistente, variables con alta capacidad discriminante y condiciones adecuadas para construir un clasificador clínicamente útil. El siguiente paso técnico natural es entrenar y validar modelos supervisados con validación cruzada, priorizando interpretabilidad y desempeño diagnóstico.
