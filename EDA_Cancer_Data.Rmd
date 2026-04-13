@@ -1,6 +1,6 @@
 ---
 title: "Primer Avance Proyecto Final - Cancer Data"
-author: "Tus Nombres Aquí"
+author: "Julian Cabrera, Andres Carvajal, Mauricio Sanchez, Jaider Carvajal, Nelson Posso"
 output:
   html_document:
     toc: true
@@ -263,36 +263,94 @@ ggparcoord(
 
 ## Gráficos 3D Interactivos
 
-Para observar el comportamiento en el espacio tridimensional y evidenciar la separabilidad de clases, fijaremos `area_mean` (eje X) y `texture_mean` (eje Y) como anclas, mientras iteramos el resto de variables como el eje Z.
+Para observar el comportamiento en el espacio tridimensional y evidenciar la separabilidad de clases, generaremos gráficas para todas las combinaciones posibles de 3 variables (X, Y y Z) entre las variables resultantes.
 
 ```{r interactivo_3d, message=FALSE, warning=FALSE}
-# Identificar las variables restantes (quitando diagnosis, area_mean, texture_mean y las redundantes de tamaño)
-vars_z <- setdiff(names(data_clean), c("diagnosis", "area_mean", "texture_mean", "radius_mean", "perimeter_mean"))
+# Para evitar que el navegador colapse por dibujar 56 gráficas 3D separadas 
+# (excediendo el límite WebGL de las páginas web), construimos 1 SOLA gráfica interactiva
+# con un MENÚ DESPLEGABLE que contiene las 56 combinaciones.
 
-# Crear gráfica interactiva 3D para cada variable Z restante
-graficas_3d <- lapply(vars_z, function(v) {
-  plot_ly(data_clean, 
-          x = ~area_mean, 
-          y = ~texture_mean, 
-          z = as.formula(paste0("~", v)), 
-          color = ~diagnosis, 
-          colors = c("B" = "steelblue", "M" = "tomato"),
-          type = "scatter3d", 
-          mode = "markers", 
-          marker = list(size = 4, opacity = 0.7)) %>%
-    layout(
-      title = paste("Área vs Textura vs", v),
-      scene = list(
-        xaxis = list(title = "Area"),
-        yaxis = list(title = "Texture"),
-        zaxis = list(title = paste(v))
+vars_combinar <- c("area_mean", "texture_mean", "smoothness_mean", "compactness_mean", "symmetry_mean", "concavity_mean", "concave.points_mean", "fractal_dimension_mean")
+combinaciones_3d <- combn(vars_combinar, 3, simplify = FALSE)
+
+# 1. Separar datos por diagnóstico para manejar las 2 trazas (clases)
+data_B <- data_clean %>% filter(diagnosis == "B")
+data_M <- data_clean %>% filter(diagnosis == "M")
+
+# Variables iniciales (por defecto arranca en la combinación 1)
+v_x_ini <- combinaciones_3d[[1]][1]
+v_y_ini <- combinaciones_3d[[1]][2]
+v_z_ini <- combinaciones_3d[[1]][3]
+
+# 2. Inicializar la gráfica 3D base con las 2 trazas separadas
+p <- plot_ly() %>%
+  add_trace(x = data_B[[v_x_ini]], y = data_B[[v_y_ini]], z = data_B[[v_z_ini]], 
+            type = "scatter3d", mode = "markers", name = "Benigno (B)",
+            marker = list(color = "steelblue", size = 4, opacity = 0.7)) %>%
+  add_trace(x = data_M[[v_x_ini]], y = data_M[[v_y_ini]], z = data_M[[v_z_ini]], 
+            type = "scatter3d", mode = "markers", name = "Maligno (M)",
+            marker = list(color = "tomato", size = 4, opacity = 0.7))
+
+# 3. Crear los botones del menú, uno por cada combinación
+botones <- lapply(combinaciones_3d, function(vars) {
+  x_v <- vars[1]
+  y_v <- vars[2]
+  z_v <- vars[3]
+  
+  # Nombre limpio para el menú desplegable (quitamos '_mean' para ahorrar espacio visual)
+  label_limpio <- paste(gsub("_mean", "", x_v), 
+                        gsub("_mean", "", y_v), 
+                        gsub("_mean", "", z_v), sep = ", ")
+  
+  list(
+    method = "update",
+    args = list(
+      # Actualizar 'x', 'y', 'z' suministrando una lista con la data de ambas trazas
+      list(
+        x = list(data_B[[x_v]], data_M[[x_v]]),
+        y = list(data_B[[y_v]], data_M[[y_v]]),
+        z = list(data_B[[z_v]], data_M[[z_v]])
       ),
-      margin = list(l = 0, r = 0, b = 0, t = 40)
-    )
+      # Layout a actualizar (Ejes y título)
+      list(
+        title = paste("Comparando:", x_v, "vs", y_v, "vs", z_v),
+        scene = list(
+          xaxis = list(title = x_v),
+          yaxis = list(title = y_v),
+          zaxis = list(title = z_v)
+        )
+      )
+    ),
+    label = label_limpio
+  )
 })
 
-# Renderizar en el documento
-htmltools::browsable(htmltools::tagList(graficas_3d))
+# 4. Añadir el menú desplegable al layout
+p <- p %>% layout(
+  title = paste("Comparando:", v_x_ini, "vs", v_y_ini, "vs", v_z_ini),
+  scene = list(
+    xaxis = list(title = v_x_ini),
+    yaxis = list(title = v_y_ini),
+    zaxis = list(title = v_z_ini)
+  ),
+  updatemenus = list(
+    list(
+      type = "dropdown",
+      active = 0,
+      buttons = botones,
+      x = 0,
+      xanchor = "left",
+      y = 1.15,
+      yanchor = "top",
+      bgcolor = "white",
+      pad = list(t = 10)
+    )
+  ),
+  margin = list(l = 0, r = 0, b = 0, t = 80)
+)
+
+# Renderizar en el documento como un solo widget interactivo
+p
 ```
 
 > **Interpretación Gráficas 3D:**
