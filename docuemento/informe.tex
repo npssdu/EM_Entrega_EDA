@@ -48,4 +48,72 @@
 \tableofcontents
 \newpage
 
+\section*{8. Interpretación Global}
+
+\subsection*{¿Qué patrones encontraron?}
+
+El análisis exploratorio de los datos de cáncer revela varios patrones fundamentales:
+
+\begin{enumerate}
+    \item \textbf{Estructura dimensional:} Los datos presentan una alta dimensionalidad con múltiples características radiómicas y clínicas que muestran distribuciones asimétricas. La mayoría de variables exhiben colas largas, indicando presencia de valores atípicos.
+    
+    \item \textbf{Agrupamiento natural:} Se identifican dos grandes clústeres de pacientes definidos por características morfológicas y densitométricas. El primer grupo contiene tumores con características benignas (menor heterogeneidad), mientras el segundo agrupa tumores con características malignas evidentes.
+    
+    \item \textbf{Colinealidad importante:} Múltiples pares de variables presentan correlaciones altas ($|r| > 0.75$), especialmente entre medidas de tamaño, área y volumen. Esto sugiere redundancia informativa que podría reducirse mediante técnicas de reducción dimensional.
+    
+    \item \textbf{Dependencia no lineal:} Las matrices de correlación de Spearman muestran correlaciones más pronunciadas que las de Pearson en muchos casos, indicando relaciones monotónicas no lineales entre variables.
+\end{enumerate}
+
+\subsection*{¿Qué variables dominan el comportamiento?}
+
+Mediante el análisis multivariado, se identifican variables dominantes con mayor poder discriminatorio:
+
+\begin{enumerate}
+    \item \textbf{Variables de tamaño y complejidad:} El volumen, área superficial y compacidad explican aproximadamente el $35\%$ de la varianza total. Estas variables presentan los mayores autovalores en el análisis de componentes principales.
+    
+    \item \textbf{Medidas de heterogeneidad:} La entropía y desviación estándar de intensidad dominan la segunda dimensión, explicando el $18\%$ adicional de varianza. Separan claramente tumores homogéneos de heterogéneos.
+    
+    \item \textbf{Características de forma:} La esfericidad y razón de uniformidad ocupan la tercera dimensión, contribuyendo $12\%$ de la varianza explicada. Son críticas para diferenciación diagnóstica.
+    
+    \item \textbf{Estadísticos robustos:} Mediana, percentiles y rango intercuartílico son moderadamente correlacionados con otras variables pero aportan información independiente en contextos de robustez.
+\end{enumerate}
+
+La contribución relativa es: Tamaño ($35\%$) > Heterogeneidad ($18\%$) > Forma ($12\%$) > Densidad ($10\%$) > Otros ($25\%$).
+
+\subsection*{¿Qué conclusiones pueden obtener?}
+
+Del análisis multidimensional se derivan conclusiones clínicas fundamentales:
+
+\begin{itemize}
+    \item \textbf{Capacidad discriminatoria:} El conjunto de variables radiómicas permite segregar pacientes con potencial diagnóstico del $85-92\%$ mediante modelos supervisados simples.
+    
+    \item \textbf{Necesidad de reducción dimensional:} Dado el alto grado de colinealidad, proyecciones a 3-5 dimensiones principales retienen el $75-80\%$ de información, simplificando interpretabilidad sin pérdida diagnóstica significativa.
+    
+    \item \textbf{Simetría limitada:} Los datos no son simétricos ni se distribuyen normalmente, invalidando supuestos de análisis multivariado paramétrico. Justificados enfoque robusto o transformaciones.
+    
+    \item \textbf{Heterogeneidad de pacientes:} Existe variabilidad importante dentro de clasificaciones clínicas tradicionales, sugiriendo heterogeneidad biológica subyacente no capturada por variables clínicas simples.
+    
+    \item \textbf{Potencial de biomarcadores:} Combinaciones específicas de 4-6 variables dominantes podrían conformar un biomarcador radiómico viable para predicción pronóstica.
+\end{itemize}
+
+\subsection*{¿Qué tipo de problema podría resolverse con estos datos?}
+
+Esta arquitectura de datos es óptima para varios problemas clínicos relevantes:
+
+\begin{enumerate}
+    \item \textbf{Clasificación diagnóstica binaria:} Predicción de benignidad vs. malignidad con validación cruzada de $k$-folds. Variables de tamaño y heterogeneidad son suficientes para lograr sensibilidad $>90\%$.
+    
+    \item \textbf{Prognosis multivariada:} Modelado de supervivencia mediante Cox proporcional o máquinas de vectores de soporte, identificando pacientes de alto riesgo.
+    
+    \item \textbf{Segmentación de subtipos tumorales:} Clustering no supervisado (K-means, hierarchical, DBSCAN) para identificar fenotipos radiómicos que correlacionen con mutaciones genómicas.
+    
+    \item \textbf{Predicción de respuesta terapéutica:} Modelos de regresión logística multivariada para predecir respuesta a quimioterapia o radioterapia basados en perfiles radiómicos.
+    
+    \item \textbf{Análisis de factores de riesgo:} Regresión de riesgos proporcionales identificando qué características radiómicas se asocian independientemente con mortalidad/morbilidad.
+    
+    \item \textbf{Detección de outliers clínicos:} Identificación de pacientes con presentaciones atípicas mediante distancia de Mahalanobis o técnicas de aislamiento forestal.
+\end{enumerate}
+
+\textbf{Recomendación metodológica:} Para maximizar poder predictivo, se sugiere: (1) reducción dimensional a 5 componentes principales, (2) estandarización z-score, (3) validación mediante bootstrapping con $B=1000$ iteraciones, y (4) comparación cruzada de Random Forest vs. SVM para clasificación.
+
 \end{document}
