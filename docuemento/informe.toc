@@ -1,1 +1,27 @@
 \babel@toc {spanish}{}\relax 
+\contentsline {section}{Introducción y propósito}{2}{section*.2}%
+\contentsline {section}{\numberline {1}Dataset}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Descripción del conjunto de datos}{2}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Variable objetivo y balance de clases}{2}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Limpieza de datos}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Tratamiento aplicado}{2}{subsection.2.1}%
+\contentsline {section}{\numberline {3}Análisis univariado}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Medidas descriptivas}{3}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Distribuciones y boxplots por diagnóstico}{3}{subsection.3.2}%
+\contentsline {section}{\numberline {4}Análisis bivariado}{7}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Matriz de correlación (Pearson)}{7}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Matriz de scatterplots}{8}{subsection.4.2}%
+\contentsline {section}{\numberline {5}Primeros hallazgos}{9}{section.5}%
+\contentsline {section}{\numberline {6}Análisis multivariado básico}{10}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Coordenadas paralelas (Z-score)}{10}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Gráficos 3D (representación estática para PDF)}{10}{subsection.6.2}%
+\contentsline {section}{\numberline {7}Medidas descriptivas multivariantes}{18}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Localización: media vectorial}{18}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Dispersión conjunta: covarianza}{19}{subsection.7.2}%
+\contentsline {section}{\numberline {8}Interpretación global (la más importante)}{20}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Cálculos de soporte}{20}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}¿Qué patrones se observan?}{22}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}¿Qué variables dominan el comportamiento?}{22}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}¿Qué conclusiones se pueden obtener?}{22}{subsection.8.4}%
+\contentsline {subsection}{\numberline {8.5}¿Qué tipo de problema se puede resolver con estos datos?}{23}{subsection.8.5}%
+\contentsline {subsection}{Cierre profesional}{23}{section*.3}%

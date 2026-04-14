@@ -3,11 +3,20 @@
 \usepackage[T1]{fontenc}
 \usepackage[spanish]{babel}
 \usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{hyperref}
 \usepackage{geometry}
 
 \geometry{margin=2.5cm}
 
+\graphicspath{{figs/}}
+
 \begin{document}
+
+% Evita advertencias de anclas duplicadas (titlepage reinicia el contador de página)
+\hypersetup{pageanchor=false}
 
 % -------------------- PORTADA --------------------
 \begin{titlepage}
@@ -15,19 +24,14 @@
         \vspace*{0.5cm}
 
         % Logo de la Universidad
-        \IfFileExists{Escudo_UD.png}{\includegraphics[width=7cm]{Escudo_UD.png}}{\vspace{3cm}}
+        \IfFileExists{Escudo_UD.png}{\includegraphics[width=7cm]{Escudo_UD.png}}{\vspace{1.5cm}}
 
-        \vspace{1.8cm}
+        \vspace{2cm}
 
-        {\Large \textbf{Universidad Distrital Francisco Jos\'e de Caldas}}\\[0.35cm]
-        {\large Facultad de Ingenier\'ia}\\[0.25cm]
-        {\large Proyecto Curricular Ingenier\'ia de Sistemas}
 
-        \vspace{2.2cm}
+        {\LARGE \textbf{Análisis Exploratorio de Datos (EDA) de Características del Núcleo Celular en Cáncer de Mama}}
 
-        {\LARGE \textbf{EDA}}\\[0.2cm]
-
-        \vfill
+        \vspace{2cm}
 
         \begin{center}
             \textbf{Integrantes:} \\[0.2cm]
@@ -35,85 +39,370 @@
             Julian Cabrera \\[0.2cm]
             Jaider \\[0.2cm]
             Mauricio \\[0.2cm]
-            Anndres \\[0.2cm]
+            Anndres \\[1cm]
             \textbf{Docente:} Jhon Alejandro Varon Robayo\\[0.25cm]
             \textbf{Asignatura:} Estad\'istica Multidimensional (020-81)\\[0.25cm]
-            \textbf{2026 - I}
         \end{center}
+        
+        \vspace{1.5cm}
+        {\large {Universidad Distrital Francisco Jos\'e de Caldas}}\\[0.35cm]
+        {\large Facultad de Ingenier\'ia}\\[0.25cm]
+        {\large Proyecto Curricular Ingenier\'ia de Sistemas}
+        
+        \vspace{1cm}
+        \textbf{2026 - I}
 
         \vspace{0.5cm}
     \end{center}
 \end{titlepage}
 
+\hypersetup{pageanchor=true}
+
 \tableofcontents
 \newpage
 
-\section*{8. Interpretación Global}
+\section*{Introducción y propósito}
+\addcontentsline{toc}{section}{Introducción y propósito}
 
-\subsection*{¿Qué patrones encontraron?}
+Este informe presenta un \textbf{análisis exploratorio de datos (EDA)} orientado a personal médico, con el objetivo de describir \textbf{patrones} y \textbf{diferencias} entre diagnósticos \textbf{benignos (B)} y \textbf{malignos (M)} a partir de variables cuantitativas del núcleo celular.
 
-El análisis exploratorio de los datos de cáncer revela varios patrones fundamentales:
+\textbf{Nota clínica}: los resultados aquí descritos son exploratorios y descriptivos (no reemplazan criterio clínico, patología ni imagenología). Todas las conclusiones se basan exclusivamente en la estructura del dataset (columna \texttt{diagnosis} y variables numéricas asociadas).
 
-\begin{enumerate}
-    \item \textbf{Estructura dimensional:} Los datos presentan una alta dimensionalidad con múltiples características radiómicas y clínicas que muestran distribuciones asimétricas. La mayoría de variables exhiben colas largas, indicando presencia de valores atípicos.
-    
-    \item \textbf{Agrupamiento natural:} Se identifican dos grandes clústeres de pacientes definidos por características morfológicas y densitométricas. El primer grupo contiene tumores con características benignas (menor heterogeneidad), mientras el segundo agrupa tumores con características malignas evidentes.
-    
-    \item \textbf{Colinealidad importante:} Múltiples pares de variables presentan correlaciones altas ($|r| > 0.75$), especialmente entre medidas de tamaño, área y volumen. Esto sugiere redundancia informativa que podría reducirse mediante técnicas de reducción dimensional.
-    
-    \item \textbf{Dependencia no lineal:} Las matrices de correlación de Spearman muestran correlaciones más pronunciadas que las de Pearson en muchos casos, indicando relaciones monotónicas no lineales entre variables.
-\end{enumerate}
 
-\subsection*{¿Qué variables dominan el comportamiento?}
+\section{Dataset}
 
-Mediante el análisis multivariado, se identifican variables dominantes con mayor poder discriminatorio:
+\subsection{Descripción del conjunto de datos}
+El archivo \texttt{Cancer\_Data.csv} contiene \textbf{569} observaciones y \textbf{32} columnas (ID, diagnóstico y variables numéricas). En este EDA se trabaja con la etiqueta \texttt{diagnosis} y las \textbf{10 variables de tipo media} (columnas que terminan en \texttt{\_mean}), para reducir redundancia y facilitar interpretación.
 
-\begin{enumerate}
-    \item \textbf{Variables de tamaño y complejidad:} El volumen, área superficial y compacidad explican aproximadamente el $35\%$ de la varianza total. Estas variables presentan los mayores autovalores en el análisis de componentes principales.
-    
-    \item \textbf{Medidas de heterogeneidad:} La entropía y desviación estándar de intensidad dominan la segunda dimensión, explicando el $18\%$ adicional de varianza. Separan claramente tumores homogéneos de heterogéneos.
-    
-    \item \textbf{Características de forma:} La esfericidad y razón de uniformidad ocupan la tercera dimensión, contribuyendo $12\%$ de la varianza explicada. Son críticas para diferenciación diagnóstica.
-    
-    \item \textbf{Estadísticos robustos:} Mediana, percentiles y rango intercuartílico son moderadamente correlacionados con otras variables pero aportan información independiente en contextos de robustez.
-\end{enumerate}
+\subsection{Variable objetivo y balance de clases}
+La variable \texttt{diagnosis} codifica: \textbf{B = Benigno} y \textbf{M = Maligno}. El balance observado es:
 
-La contribución relativa es: Tamaño ($35\%$) > Heterogeneidad ($18\%$) > Forma ($12\%$) > Densidad ($10\%$) > Otros ($25\%$).
+\begin{table}[H]
+\centering
+\caption{Conteo de observaciones por diagnóstico.}
+\label{tab:conteo_diagnostico}
+\input{tables/tabla_conteos_diagnostico.tex}
+\end{table}
 
-\subsection*{¿Qué conclusiones pueden obtener?}
 
-Del análisis multidimensional se derivan conclusiones clínicas fundamentales:
+\section{Limpieza de datos}
 
+\subsection{Tratamiento aplicado}
+Se aplicaron los siguientes pasos de preparación, consistentes con el EDA en RMarkdown:
 \begin{itemize}
-    \item \textbf{Capacidad discriminatoria:} El conjunto de variables radiómicas permite segregar pacientes con potencial diagnóstico del $85-92\%$ mediante modelos supervisados simples.
-    
-    \item \textbf{Necesidad de reducción dimensional:} Dado el alto grado de colinealidad, proyecciones a 3-5 dimensiones principales retienen el $75-80\%$ de información, simplificando interpretabilidad sin pérdida diagnóstica significativa.
-    
-    \item \textbf{Simetría limitada:} Los datos no son simétricos ni se distribuyen normalmente, invalidando supuestos de análisis multivariado paramétrico. Justificados enfoque robusto o transformaciones.
-    
-    \item \textbf{Heterogeneidad de pacientes:} Existe variabilidad importante dentro de clasificaciones clínicas tradicionales, sugiriendo heterogeneidad biológica subyacente no capturada por variables clínicas simples.
-    
-    \item \textbf{Potencial de biomarcadores:} Combinaciones específicas de 4-6 variables dominantes podrían conformar un biomarcador radiómico viable para predicción pronóstica.
+    \item Eliminación de una columna residual vacía (el archivo original contiene un separador final en el encabezado).
+    \item Verificación de valores faltantes: en el conjunto final usado (\texttt{diagnosis} + variables \texttt{\_mean}) no se detectaron \textbf{NA}.
+    \item Eliminación de duplicados (si existiesen).
+    \item Selección de variables \texttt{\_mean}: se trabaja con 10 métricas promedio para conservar una vista clínica y estadísticamente legible.
 \end{itemize}
 
-\subsection*{¿Qué tipo de problema podría resolverse con estos datos?}
 
-Esta arquitectura de datos es óptima para varios problemas clínicos relevantes:
+\section{Análisis univariado}
 
-\begin{enumerate}
-    \item \textbf{Clasificación diagnóstica binaria:} Predicción de benignidad vs. malignidad con validación cruzada de $k$-folds. Variables de tamaño y heterogeneidad son suficientes para lograr sensibilidad $>90\%$.
-    
-    \item \textbf{Prognosis multivariada:} Modelado de supervivencia mediante Cox proporcional o máquinas de vectores de soporte, identificando pacientes de alto riesgo.
-    
-    \item \textbf{Segmentación de subtipos tumorales:} Clustering no supervisado (K-means, hierarchical, DBSCAN) para identificar fenotipos radiómicos que correlacionen con mutaciones genómicas.
-    
-    \item \textbf{Predicción de respuesta terapéutica:} Modelos de regresión logística multivariada para predecir respuesta a quimioterapia o radioterapia basados en perfiles radiómicos.
-    
-    \item \textbf{Análisis de factores de riesgo:} Regresión de riesgos proporcionales identificando qué características radiómicas se asocian independientemente con mortalidad/morbilidad.
-    
-    \item \textbf{Detección de outliers clínicos:} Identificación de pacientes con presentaciones atípicas mediante distancia de Mahalanobis o técnicas de aislamiento forestal.
-\end{enumerate}
+\subsection{Medidas descriptivas}
+La Tabla \ref{tab:medidas_resumen} resume media, mediana y desviación estándar (sobre las 10 variables \texttt{\_mean}). Estas magnitudes ayudan a interpretar escalas (p. ej., \texttt{area\_mean} tiene orden de magnitud mayor que \texttt{smoothness\_mean}).
 
-\textbf{Recomendación metodológica:} Para maximizar poder predictivo, se sugiere: (1) reducción dimensional a 5 componentes principales, (2) estandarización z-score, (3) validación mediante bootstrapping con $B=1000$ iteraciones, y (4) comparación cruzada de Random Forest vs. SVM para clasificación.
+\begin{table}[H]
+\centering
+\caption{Medidas descriptivas (media, mediana, desviación estándar) para variables \texttt{\_mean}.}
+\label{tab:medidas_resumen}
+\input{tables/tabla_medidas_resumen.tex}
+\end{table}
+
+\subsection{Distribuciones y boxplots por diagnóstico}
+En cada figura se muestra: (i) el histograma global y (ii) el boxplot separado por diagnóstico. Para personal clínico, el boxplot es clave porque ilustra \textbf{separación entre grupos} y \textbf{solapamiento}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{univar_radius_mean.png}
+\caption{\texttt{radius\_mean}: tamaño promedio del núcleo. En este dataset, los casos M tienden a valores más altos que B.}
+\label{fig:univar_radius}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} La distribución por diagnóstico sugiere que el tamaño promedio del núcleo (\texttt{radius\_mean}) aporta una señal descriptiva fuerte: el grupo M se desplaza hacia valores mayores y suele presentar mayor dispersión. En términos de triage analítico, esta variable es informativa, aunque sigue existiendo variabilidad intra-grupo; por ello, es más útil cuando se combina con métricas de irregularidad (p. ej., concavidad y puntos cóncavos).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{univar_texture_mean.png}
+\caption{\texttt{texture\_mean}: textura promedio. Se observa mayor solapamiento entre B y M en comparación con variables de tamaño/irregularidad.}
+\label{fig:univar_texture}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} \texttt{texture\_mean} muestra un solapamiento más evidente entre B y M. Esto sugiere que, en aislamiento, su capacidad discriminante es menor y su rol es principalmente complementario dentro de un perfil multivariado.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{univar_smoothness_mean.png}
+\caption{\texttt{smoothness\_mean}: suavidad promedio. En general presenta solapamiento; los extremos pueden aportar señal adicional.}
+\label{fig:univar_smoothness}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} La suavidad promedio tiende a solaparse entre clases, por lo que no se recomienda interpretarla como un umbral único. Puede aportar valor cuando se interpreta junto con compacidad/concavidad, donde se evidencian patrones más consistentes.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{univar_compactness_mean.png}
+\caption{\texttt{compactness\_mean}: compacidad promedio. Suele mostrar valores mayores en M respecto a B.}
+\label{fig:univar_compactness}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} \texttt{compactness\_mean} presenta un desplazamiento hacia valores superiores en M. En el contexto del resto de variables de borde (Tabla \ref{tab:cor_altas}), esta métrica suele acompañar a \texttt{concavity\_mean} y \texttt{concave.points\_mean}, reforzando la lectura de irregularidad.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{univar_concavity_mean.png}
+\caption{\texttt{concavity\_mean}: concavidad promedio. Se observa una separación más marcada: B se concentra cerca de valores bajos, mientras M se desplaza hacia valores más altos.}
+\label{fig:univar_concavity}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} \texttt{concavity\_mean} es una de las variables con separación visual más clara. El grupo B se concentra en valores bajos, mientras que M se distribuye hacia valores más altos. Este patrón es consistente con el ranking de tamaños de efecto (Tabla \ref{tab:efectos}).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{univar_concave_points_mean.png}
+\caption{\texttt{concave.points\_mean}: puntos cóncavos promedio. Variable con alta capacidad descriptiva para diferenciar B vs M en este dataset.}
+\label{fig:univar_concave_points}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} \texttt{concave.points\_mean} destaca como la variable con mayor contraste estandarizado entre diagnósticos (Tabla \ref{tab:efectos}). En términos prácticos, aporta un eje de irregularidad con poca ambigüedad relativa frente a otras métricas más solapadas.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{univar_symmetry_mean.png}
+\caption{\texttt{symmetry\_mean}: simetría promedio. Presenta un solapamiento considerable, por lo que tiende a ser menos discriminante en aislamiento.}
+\label{fig:univar_symmetry}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} En este dataset, la simetría promedio es menos útil como separador único por el solapamiento observado. Su aporte es principalmente multivariado (como parte de un vector de características), más que como regla clínica individual.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{univar_fractal_dimension_mean.png}
+\caption{\texttt{fractal\_dimension\_mean}: dimensión fractal promedio. Se observa solapamiento relevante; su valor puede ser complementario en modelos multivariados.}
+\label{fig:univar_fractal}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} La dimensión fractal promedio exhibe un solapamiento alto y, según el tamaño de efecto (Tabla \ref{tab:efectos}), su diferencia entre grupos es cercana a cero. Esto sugiere baja utilidad discriminante en este conjunto específico.
+
+
+\section{Análisis bivariado}
+
+\subsection{Matriz de correlación (Pearson)}
+La Figura \ref{fig:corr_matrix} resume correlaciones lineales entre variables \texttt{\_mean} (reduciendo el bloque de tamaño al retirar \texttt{radius\_mean} y \texttt{perimeter\_mean}). Los valores dentro de cada celda permiten ver intensidad y signo de relación.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\linewidth]{corr_matrix.png}
+\caption{Matriz de correlación (Pearson) para variables \texttt{\_mean} reducidas.}
+\label{fig:corr_matrix}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} Se observan dependencias fuertes que indican que varias mediciones describen un mismo fenómeno subyacente. Por ejemplo, el bloque de tamaño \texttt{radius\_mean}--\texttt{perimeter\_mean}--\texttt{area\_mean} presenta correlaciones cercanas a 1 (Tabla \ref{tab:cor_altas}). En variables de irregularidad, \texttt{concavity\_mean} y \texttt{concave.points\_mean} también muestran una relación alta. Para inferencia/modelado, esto significa que no conviene usar todas las variables redundantes simultáneamente sin control de colinealidad.
+
+\subsection{Matriz de scatterplots}
+La Figura \ref{fig:scatter_matrix} complementa la correlación mostrando la forma de las nubes (relaciones aproximadamente lineales, curvaturas y solapamientos por diagnóstico).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{scatter_matrix.png}
+\caption{Matriz de scatterplots (pairplot) con color por diagnóstico.}
+\label{fig:scatter_matrix}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} En cruces entre variables de tamaño e irregularidad (por ejemplo, área con concavidad o puntos cóncavos) se observa una separación más consistente por diagnóstico. En cambio, al cruzar textura/suavidad con variables más solapadas (simetría o dimensión fractal), aumenta la mezcla entre clases y la lectura clínica es menos concluyente.
+
+
+\section{Primeros hallazgos}
+Con base en las secciones univariada y bivariada:
+\begin{itemize}
+    \item Variables asociadas a \textbf{tamaño} e \textbf{irregularidad de borde} tienden a diferenciar mejor B vs M.
+    \item Existen bloques de alta correlación (redundancia), por lo cual selección de variables o reducción dimensional es recomendable antes de modelar.
+    \item Variables como \texttt{symmetry\_mean} y \texttt{fractal\_dimension\_mean} suelen aportar señal más sutil (mayor solapamiento), útil como complemento multivariado.
+\end{itemize}
+
+
+\section{Análisis multivariado básico}
+
+\subsection{Coordenadas paralelas (Z-score)}
+En coordenadas paralelas, cada paciente es una línea y cada eje vertical es una variable estandarizada ($Z$). La separación visual por color sugiere perfiles consistentes de M vs B.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{parallel_coordinates.png}
+\caption{Coordenadas paralelas para variables \texttt{\_mean} estandarizadas.}
+\label{fig:parallel_coords}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} En el perfil estandarizado, las trayectorias de M tienden a elevarse simultáneamente en variables de tamaño e irregularidad. Esto respalda que la diferenciación B vs M se explica mejor por un \textbf{patrón conjunto} que por una sola medición aislada.
+
+\subsection{Gráficos 3D (representación estática para PDF)}
+El EDA original en RMarkdown incluye visualizaciones 3D interactivas. Para el informe en PDF se adjuntan versiones estáticas de 8 combinaciones representativas. La Tabla \ref{tab:stats_3d} resume, para cada combinación, la correlación global ($r$) entre dos variables destacadas y las pendientes (regresión lineal simple) por grupo B y M.
+
+\begin{table}[H]
+\centering
+\caption{Resumen numérico de relaciones bivariadas destacadas en las gráficas 3D (Pearson y pendientes por diagnóstico).}
+\label{tab:stats_3d}
+\small
+\resizebox{\textwidth}{!}{\input{tables/tabla_stats_3d.tex}}
+\normalsize
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\linewidth]{plot3d_1.png}
+\caption{Gráfica 1: \texttt{radius\_mean} vs \texttt{smoothness\_mean} vs \texttt{concavity\_mean}.}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} Al combinar un indicador de tamaño (radio promedio) con un indicador de irregularidad (concavidad), se observa un gradiente más claro entre diagnósticos. Esto está respaldado por una correlación positiva moderada-alta en el par destacado (Tabla \ref{tab:stats_3d}).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\linewidth]{plot3d_2.png}
+\caption{Gráfica 2: \texttt{radius\_mean} vs \texttt{compactness\_mean} vs \texttt{concavity\_mean}.}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} Aquí se integran dos variables de irregularidad (\texttt{compactness\_mean} y \texttt{concavity\_mean}) con tamaño. La relación \texttt{compactness\_mean}--\texttt{concavity\_mean} es alta (Tabla \ref{tab:stats_3d}), reforzando una separación visual más estable entre grupos.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\linewidth]{plot3d_3.png}
+\caption{Gráfica 3: \texttt{texture\_mean} vs \texttt{smoothness\_mean} vs \texttt{compactness\_mean}.}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} En esta combinación, el par \texttt{texture\_mean}--\texttt{smoothness\_mean} presenta correlación prácticamente nula (Tabla \ref{tab:stats_3d}), lo cual suele traducirse en una nube de puntos sin direccionalidad clara y con mayor mezcla entre diagnósticos. En general, esta vista es menos útil para separar B vs M que combinaciones que incluyen \texttt{concavity\_mean} o \texttt{concave.points\_mean}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\linewidth]{plot3d_4.png}
+\caption{Gráfica 4: \texttt{texture\_mean} vs \texttt{smoothness\_mean} vs \texttt{concavity\_mean}.}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} Al incorporar \texttt{concavity\_mean}, se añade un eje de irregularidad con mayor contraste. Aunque la relación \texttt{texture\_mean}--\texttt{concavity\_mean} es moderada (Tabla \ref{tab:stats_3d}), esta variable tiende a organizar mejor el espacio que textura/suavidad por sí solas.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\linewidth]{plot3d_5.png}
+\caption{Gráfica 5: \texttt{texture\_mean} vs \texttt{smoothness\_mean} vs \texttt{symmetry\_mean}.}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} Esta combinación incluye métricas que, de forma univariada, presentan más solapamiento (Figuras \ref{fig:univar_texture}, \ref{fig:univar_smoothness} y \ref{fig:univar_symmetry}). Por ello, aun si existen correlaciones moderadas entre algunas parejas (Tabla \ref{tab:stats_3d}), la separación por diagnóstico tiende a ser menos evidente que cuando se usa concavidad/puntos cóncavos.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\linewidth]{plot3d_6.png}
+\caption{Gráfica 6: \texttt{smoothness\_mean} vs \texttt{compactness\_mean} vs \texttt{concavity\_mean}.}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} \texttt{compactness\_mean} y \texttt{concavity\_mean} están fuertemente relacionadas (Tabla \ref{tab:stats_3d}) y, al agregarse \texttt{smoothness\_mean}, el espacio 3D suele exhibir una estructura más ordenada: los valores altos en irregularidad concentran una mayor proporción de casos M.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\linewidth]{plot3d_7.png}
+\caption{Gráfica 7: \texttt{smoothness\_mean} vs \texttt{compactness\_mean} vs \texttt{symmetry\_mean}.}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} Al sustituir \texttt{concavity\_mean} por \texttt{symmetry\_mean}, suele aumentar el solapamiento (Figura \ref{fig:univar_symmetry}). En consecuencia, esta combinación es menos favorable para separar diagnósticos que la Gráfica 6.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\linewidth]{plot3d_8.png}
+\caption{Gráfica 8: \texttt{compactness\_mean} vs \texttt{concavity\_mean} vs \texttt{symmetry\_mean}.}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} La presencia simultánea de \texttt{compactness\_mean} y \texttt{concavity\_mean} (variables altamente asociadas entre sí) tiende a dominar la estructura del espacio, mientras \texttt{symmetry\_mean} actúa como un eje adicional con menor capacidad discriminante. Esta vista puede ser útil para observar heterogeneidad dentro de M, pero la separación principal proviene del par compacidad--concavidad.
+
+
+\section{Medidas descriptivas multivariantes}
+
+\subsection{Localización: media vectorial}
+Para comparar magnitudes entre variables con escalas distintas, se muestra la media de cada variable en escala logarítmica.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\linewidth]{mean_vector.png}
+\caption{Media vectorial (escala logarítmica).}
+\label{fig:mean_vector}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} La escala logarítmica permite comparar magnitudes: algunas variables (p. ej., \texttt{area\_mean}) dominan el orden de magnitud frente a métricas adimensionales como \texttt{smoothness\_mean}. Para cualquier modelado o distancia multivariante, esto justifica estandarizar (Z-score), como se hizo en coordenadas paralelas.
+
+\subsection{Dispersión conjunta: covarianza}
+La covarianza refleja cómo varían conjuntamente pares de variables en unidades originales; al graficarla en $\log_{10}(|\mathrm{Cov}|)$ se facilita comparar magnitudes.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\linewidth]{cov_heatmap.png}
+\caption{Mapa de calor de covarianzas en escala $\log_{10}(|\mathrm{Cov}|)$.}
+\label{fig:cov_heatmap}
+\end{figure}
+
+\noindent\textbf{Lectura clínica:} La covarianza no normalizada se ve influida fuertemente por la escala. Por eso, variables de tamaño tienden a dominar la dispersión conjunta. En términos prácticos: para comparar ``peso'' relativo de variables y evitar que una sola escala gobierne el análisis, la estandarización es un paso metodológico esencial.
+
+
+\section{Interpretación global (la más importante)}
+
+\subsection{Cálculos de soporte}
+Para sustentar la interpretación global, se resumen (i) correlaciones altas, (ii) tamaño de efecto (Cohen's $d$) y (iii) estructura por PCA.
+
+\begin{table}[H]
+\centering
+\caption{Top 10 pares con correlación alta ($|r| \ge 0.75$) en variables \texttt{\_mean}.}
+\label{tab:cor_altas}
+\small
+\input{tables/tabla_cor_altas.tex}
+\normalsize
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Top 10 variables por tamaño de efecto (Cohen's $d$) entre M y B.}
+\label{tab:efectos}
+\small
+\input{tables/tabla_efectos_cohen.tex}
+\normalsize
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Varianza explicada por PCA (primeras 5 componentes) sobre variables estandarizadas.}
+\label{tab:pca_var}
+\input{tables/tabla_pca_varianza.tex}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Variables con mayor contribución (carga) absoluta en PC1.}
+\label{tab:pc1_loadings}
+\small
+\input{tables/tabla_cargas_pc1.tex}
+\normalsize
+\end{table}
+
+\subsection{¿Qué patrones se observan?}
+\begin{itemize}
+    \item \textbf{Diferencias por tamaño e irregularidad}: En las Figuras \ref{fig:univar_radius} y \ref{fig:univar_concave_points} se aprecia que variables asociadas a tamaño y a irregularidad del contorno tienden a separarse por diagnóstico.
+    \item \textbf{Redundancia (multicolinealidad)}: La Tabla \ref{tab:cor_altas} y la Figura \ref{fig:corr_matrix} muestran pares de variables altamente correlacionadas, indicando que varias métricas miden aspectos relacionados.
+    \item \textbf{Separación multivariada}: En coordenadas paralelas (Figura \ref{fig:parallel_coords}) se observan perfiles más altos simultáneamente en varios ejes para una de las clases, lo cual sugiere que el diagnóstico no depende de una sola variable aislada, sino de un patrón conjunto.
+\end{itemize}
+
+\subsection{¿Qué variables dominan el comportamiento?}
+La Tabla \ref{tab:efectos} resume las variables con mayor diferencia estandarizada entre M y B (Cohen's $d$). En este dataset, variables de \textbf{irregularidad} (p. ej., \texttt{concave.points\_mean} y \texttt{concavity\_mean}) y de \textbf{tamaño} (p. ej., \texttt{radius\_mean}/\texttt{area\_mean}) aparecen entre las más dominantes.
+
+Adicionalmente, el PCA (Tablas \ref{tab:pca_var} y \ref{tab:pc1_loadings}) muestra que la \textbf{PC1 explica aproximadamente el 55\%} de la variabilidad y la \textbf{PC2 alrededor del 25\%} (casi \textbf{80\% acumulado} en las dos primeras componentes). Las mayores cargas (en valor absoluto) se concentran en variables de irregularidad y tamaño, lo que sugiere que ese es el eje dominante del comportamiento global.
+
+\subsection{¿Qué conclusiones se pueden obtener?}
+\begin{itemize}
+    \item El dataset contiene \textbf{señal discriminante} para diferenciar B vs M de forma descriptiva: la separación es visible en varias variables y en combinaciones multivariadas.
+    \item Antes de construir modelos predictivos, es recomendable controlar colinealidad (Tabla \ref{tab:cor_altas}) mediante selección de variables o reducción dimensional.
+    \item Para personal clínico, la lectura principal es: en este dataset, valores más altos en métricas de tamaño e irregularidad se asocian a la clase M; no obstante, existe solapamiento en variables como simetría y dimensión fractal, por lo cual el diagnóstico no se explica por un único umbral simple.
+\end{itemize}
+
+\subsection{¿Qué tipo de problema se puede resolver con estos datos?}
+El planteamiento natural es un problema de \textbf{clasificación binaria supervisada}: predecir \texttt{diagnosis} (B vs M) a partir de las variables \texttt{\_mean}.\\
+Modelos típicos: regresión logística, SVM, Random Forest, gradient boosting. La evaluación debe reportar métricas clínicamente relevantes como AUC, sensibilidad, especificidad y matriz de confusión (sin asumir desempeño hasta entrenar/validar).
+
+\subsection*{Cierre profesional}
+\addcontentsline{toc}{subsection}{Cierre profesional}
+En síntesis, el EDA evidencia estructura multivariada consistente, relaciones fuertes entre variables y un conjunto reducido de métricas con alto contraste entre diagnósticos. El siguiente paso recomendado es entrenar modelos supervisados con estandarización, control de colinealidad y validación cruzada, priorizando interpretabilidad.
 
 \end{document}
