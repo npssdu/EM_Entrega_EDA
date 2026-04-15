@@ -18,10 +18,10 @@
 \contentsline {section}{\numberline {7}Medidas descriptivas multivariantes}{18}{section.7}%
 \contentsline {subsection}{\numberline {7.1}Localización: media vectorial}{18}{subsection.7.1}%
 \contentsline {subsection}{\numberline {7.2}Dispersión conjunta: covarianza}{19}{subsection.7.2}%
-\contentsline {section}{\numberline {8}Interpretación global (la más importante)}{20}{section.8}%
+\contentsline {section}{\numberline {8}Interpretación global}{20}{section.8}%
 \contentsline {subsection}{\numberline {8.1}Cálculos de soporte}{20}{subsection.8.1}%
 \contentsline {subsection}{\numberline {8.2}¿Qué patrones se observan?}{22}{subsection.8.2}%
 \contentsline {subsection}{\numberline {8.3}¿Qué variables dominan el comportamiento?}{22}{subsection.8.3}%
-\contentsline {subsection}{\numberline {8.4}¿Qué conclusiones se pueden obtener?}{22}{subsection.8.4}%
+\contentsline {subsection}{\numberline {8.4}¿Qué conclusiones se pueden obtener?}{23}{subsection.8.4}%
 \contentsline {subsection}{\numberline {8.5}¿Qué tipo de problema se puede resolver con estos datos?}{23}{subsection.8.5}%
-\contentsline {subsection}{Cierre profesional}{23}{section*.3}%
+\contentsline {section}{Referencias}{24}{section*.3}%
