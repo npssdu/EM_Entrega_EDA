@@ -64,15 +64,17 @@
 \section*{Introducción y propósito}
 \addcontentsline{toc}{section}{Introducción y propósito}
 
+Existe alguna problemática real en la \textbf{detección temprana de cáncer}, este debido a diversas razones, entre ellas está la necesidad del rápido diagnóstico del mismo, por diversas razones, no siempre médicas, en algunos casos miedo por ciertos procedimientos como lo son las biopsias, muchas personas dejan de hacerse exámenes porque no lo ven "necesario", y, además de ello, hay que tener en cuenta \textbf{los costos que implican realizar un procedimiento médico invasivo}. Con el fin de poder acelerar el diagnóstico de diversos tipos de cáncer se puede \textbf{mejorar el análisis de imágenes diagnósticas}, y ya que hablamos de tejidos blandos, hablaríamos de \textbf{ecografías} principalmente, las cuales nos \textbf{permiten analizar diversas variables} (de las cuales hablaremos en este informe), las cuales nos dan datos \textbf{cuantificables} a los cuales se les pueden aplicar estadística para \textbf{determinar su funcionalidad y efectividad para un mejor diagnóstico ante la sospecha de un cáncer}, de tal manera poder estimular la prevención y acción a tiempo.
+
 Este informe presenta un \textbf{análisis exploratorio de datos (EDA)} orientado a personal médico, con el objetivo de describir \textbf{patrones} y \textbf{diferencias} entre diagnósticos \textbf{benignos (B)} y \textbf{malignos (M)} a partir de variables cuantitativas del núcleo celular.
 
-\textbf{Nota clínica}: los resultados aquí descritos son exploratorios y descriptivos (no reemplazan criterio clínico, patología ni imagenología). Todas las conclusiones se basan exclusivamente en la estructura del dataset (columna \texttt{diagnosis} y variables numéricas asociadas).
+\textbf{Nota}: los resultados aquí descritos son exploratorios y descriptivos (no reemplazan criterio clínico, patología ni imagenología). Todas las conclusiones se basan exclusivamente en la estructura del dataset (columna \texttt{diagnosis} y variables numéricas asociadas).
 
 
 \section{Dataset}
 
 \subsection{Descripción del conjunto de datos}
-El archivo \texttt{Cancer\_Data.csv} contiene \textbf{569} observaciones y \textbf{32} columnas (ID, diagnóstico y variables numéricas). En este EDA se trabaja con la etiqueta \texttt{diagnosis} y las \textbf{10 variables de tipo media} (columnas que terminan en \texttt{\_mean}), para reducir redundancia y facilitar interpretación.
+El archivo \href{https://www.kaggle.com/datasets/erdemtaha/cancer-data}{Cancer\_Data.csv} contiene \textbf{569} observaciones y \textbf{32} columnas (ID, diagnóstico y variables numéricas). En este EDA se trabaja con la etiqueta \texttt{diagnosis} y las \textbf{10 variables de tipo media} (columnas que terminan en \texttt{\_mean}), para reducir redundancia y facilitar interpretación.
 
 \subsection{Variable objetivo y balance de clases}
 La variable \texttt{diagnosis} codifica: \textbf{B = Benigno} y \textbf{M = Maligno}. El balance observado es:
@@ -119,7 +121,7 @@ En cada figura se muestra: (i) el histograma global y (ii) el boxplot separado p
 \label{fig:univar_radius}
 \end{figure}
 
-\noindent\textbf{Lectura clínica:} La distribución por diagnóstico sugiere que el tamaño promedio del núcleo (\texttt{radius\_mean}) aporta una señal descriptiva fuerte: el grupo M se desplaza hacia valores mayores y suele presentar mayor dispersión. En términos de triage analítico, esta variable es informativa, aunque sigue existiendo variabilidad intra-grupo; por ello, es más útil cuando se combina con métricas de irregularidad (p. ej., concavidad y puntos cóncavos).
+\noindent\textbf{Lectura clínica:} La distribución por diagnóstico sugiere que el tamaño promedio del núcleo (\texttt{radius\_mean}) aporta una señal descriptiva fuerte: el grupo M se desplaza hacia valores mayores y suele presentar mayor dispersión. En términos de triage analítico, esta variable es informativa, aunque sigue existiendo variabilidad dentro de dichos grupos; por ello, es más útil cuando se combina con métricas de irregularidad (p. ej., concavidad y puntos cóncavos).
 
 \begin{figure}[H]
 \centering
@@ -387,6 +389,8 @@ Para sustentar la interpretación global, se resumen (i) correlaciones altas, (i
 
 \subsection{¿Qué variables dominan el comportamiento?}
 La Tabla \ref{tab:efectos} resume las variables con mayor diferencia estandarizada entre M y B (Cohen's $d$). En este dataset, variables de \textbf{irregularidad} (p. ej., \texttt{concave.points\_mean} y \texttt{concavity\_mean}) y de \textbf{tamaño} (p. ej., \texttt{radius\_mean}/\texttt{area\_mean}) aparecen entre las más dominantes.
+
+También teniendo en cuenta que al estar presente la variable \texttt{compactness_mean} le brinda mayor orden a la distribución de los datos, permitiendo aumentar la probabilidad de diagnostico. Un ejemplo de ello es en la \textbf{Gráfica 2.} que presenta
 
 Adicionalmente, el PCA (Tablas \ref{tab:pca_var} y \ref{tab:pc1_loadings}) muestra que la \textbf{PC1 explica aproximadamente el 55\%} de la variabilidad y la \textbf{PC2 alrededor del 25\%} (casi \textbf{80\% acumulado} en las dos primeras componentes). Las mayores cargas (en valor absoluto) se concentran en variables de irregularidad y tamaño, lo que sugiere que ese es el eje dominante del comportamiento global.
 
