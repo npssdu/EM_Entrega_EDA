@@ -64,11 +64,11 @@
 \section*{Introducción y propósito}
 \addcontentsline{toc}{section}{Introducción y propósito}
 
-Existe alguna problemática real en la \textbf{detección temprana de cáncer}, este debido a diversas razones, entre ellas está la necesidad del rápido diagnóstico del mismo, por diversas razones, no siempre médicas, en algunos casos miedo por ciertos procedimientos como lo son las biopsias, muchas personas dejan de hacerse exámenes porque no lo ven "necesario", y, además de ello, hay que tener en cuenta \textbf{los costos que implican realizar un procedimiento médico invasivo}. Con el fin de poder acelerar el diagnóstico de diversos tipos de cáncer se puede \textbf{mejorar el análisis de imágenes diagnósticas}, y ya que hablamos de tejidos blandos, hablaríamos de \textbf{ecografías} principalmente, las cuales nos \textbf{permiten analizar diversas variables} (de las cuales hablaremos en este informe), las que nos dan datos \textbf{cuantificables} y se les pueden aplicar estadística para \textbf{determinar su funcionalidad y efectividad para un mejor diagnóstico ante la sospecha de un cáncer}, de tal manera poder estimular la prevención y acción a tiempo.
+La \textbf{detección temprana del cáncer} sigue siendo un reto real. En la práctica, el diagnóstico oportuno puede verse limitado por factores médicos y también por barreras de acceso: temor a procedimientos invasivos (como la biopsia), baja percepción de riesgo y costos asociados a estudios clínicos especializados. En este contexto, fortalecer el análisis de imágenes diagnósticas (en particular, ecografías de tejidos blandos) permite extraer variables \textbf{cuantificables} y analizarlas con herramientas estadísticas, con el fin de apoyar decisiones tempranas ante la sospecha de malignidad.
 
-En la literatura se puede evidenciar como la estadística multidimensional se vuelve una gran aliada en casos medicos, tanto en diagnosticos, como para estudios estadisticos aplicados en la toma de decisiones para procedimientos medicos, teniendo en cuenta los estudios estadisticos permite determinar el procedimiento con mayor probabilidad de éxito, ya que se estudian variables, como el sexo, la edad, el tipo de cancer, la ubicación y otras variables que se tienen en cuenta para el diagnostico y tratamiento en distintas etapas del cáncer (variables que no necesariemtne se toman en cuenta en este dataSet ya que son estudios distintos).
+La literatura muestra que la estadística multidimensional es una aliada importante tanto para el diagnóstico como para la toma de decisiones clínicas. Este tipo de análisis permite integrar múltiples variables y evaluar patrones que no siempre son evidentes en revisiones univariadas. Aunque en otros estudios se consideran factores como edad, sexo o localización del tumor, en este trabajo nos concentramos exclusivamente en las variables morfológicas disponibles en el dataset.
 
-Este informe presenta un \textbf{análisis exploratorio de datos (EDA)} orientado a personal médico, con el objetivo de describir \textbf{patrones} y \textbf{diferencias} entre diagnósticos \textbf{benignos (B)} y \textbf{malignos (M)} a partir de variables cuantitativas del núcleo celular.
+Este informe presenta un \textbf{análisis exploratorio de datos (EDA)} orientado a personal médico. El objetivo es describir \textbf{patrones} y \textbf{diferencias} entre diagnósticos \textbf{benignos (B)} y \textbf{malignos (M)} a partir de variables cuantitativas del núcleo celular.
 
 \textbf{Nota}: los resultados aquí descritos son exploratorios y descriptivos (no reemplazan criterio clínico, patología ni imagenología). Todas las conclusiones se basan exclusivamente en la estructura del dataset (columna \texttt{diagnosis} y variables numéricas asociadas).
 
@@ -92,7 +92,7 @@ La variable \texttt{diagnosis} codifica: \textbf{B = Benigno} y \textbf{M = Mali
 \section{Limpieza de datos}
 
 \subsection{Tratamiento aplicado}
-Se aplicaron los siguientes pasos de preparación, consistentes con el EDA en RMarkdown:
+Se aplicaron los siguientes pasos de preparación, consistentes con el EDA en R Markdown:
 \begin{itemize}
     \item Eliminación de una columna residual vacía (el archivo original contiene un separador final en el encabezado).
     \item Verificación de valores faltantes: en el conjunto final usado (\texttt{diagnosis} + variables \texttt{\_mean}) no se detectaron \textbf{NA}.
@@ -114,7 +114,7 @@ La Tabla \ref{tab:medidas_resumen} resume media, mediana y desviación estándar
 \end{table}
 
 \subsection{Distribuciones y boxplots por diagnóstico}
-En cada figura se muestra: (i) el histograma global y (ii) el boxplot separado por diagnóstico. Para personal clínico, el boxplot es clave porque ilustra \textbf{separación entre grupos} y \textbf{solapamiento}.
+En cada figura se muestra: (i) el histograma global y (ii) el boxplot separado por diagnóstico. Para personal clínico, el boxplot es especialmente útil porque permite visualizar la \textbf{separación entre grupos} y el \textbf{solapamiento}.
 
 \begin{figure}[H]
 \centering
@@ -192,7 +192,7 @@ En cada figura se muestra: (i) el histograma global y (ii) el boxplot separado p
 \section{Análisis bivariado}
 
 \subsection{Matriz de correlación (Pearson)}
-La Figura \ref{fig:corr_matrix} resume correlaciones lineales entre variables \texttt{\_mean} (reduciendo el bloque de tamaño al retirar \texttt{radius\_mean} y \texttt{perimeter\_mean}). Los valores dentro de cada celda permiten ver intensidad y signo de relación.
+La Figura \ref{fig:corr_matrix} resume correlaciones lineales entre variables \texttt{\_mean} (reduciendo el bloque de tamaño al retirar \texttt{radius\_mean} y \texttt{perimeter\_mean}). Los valores dentro de cada celda permiten identificar la intensidad y el signo de cada relación.
 
 \begin{figure}[H]
 \centering
@@ -204,7 +204,7 @@ La Figura \ref{fig:corr_matrix} resume correlaciones lineales entre variables \t
 \noindent\textbf{Lectura clínica:} Se observan dependencias fuertes que indican que varias mediciones describen un mismo fenómeno subyacente. Por ejemplo, el bloque de tamaño \texttt{radius\_mean}--\texttt{perimeter\_mean}--\texttt{area\_mean} presenta correlaciones cercanas a 1 (Tabla \ref{tab:cor_altas}). En variables de irregularidad, \texttt{concavity\_mean} y \texttt{concave.points\_mean} también muestran una relación alta. Para inferencia/modelado, esto significa que no conviene usar todas las variables redundantes simultáneamente sin control de colinealidad.
 
 \subsection{Matriz de scatterplots}
-La Figura \ref{fig:scatter_matrix} complementa la correlación mostrando la forma de las nubes (relaciones aproximadamente lineales, curvaturas y solapamientos por diagnóstico).
+La Figura \ref{fig:scatter_matrix} complementa la matriz de correlación al mostrar la forma de las nubes de puntos (relaciones aproximadamente lineales, curvaturas y solapamientos por diagnóstico).
 
 \begin{figure}[H]
 \centering
@@ -228,7 +228,7 @@ Con base en las secciones univariada y bivariada:
 \section{Análisis multivariado básico}
 
 \subsection{Coordenadas paralelas (Z-score)}
-En coordenadas paralelas, cada paciente es una línea y cada eje vertical es una variable estandarizada ($Z$). La separación visual por color sugiere perfiles consistentes de M vs B.
+En coordenadas paralelas, cada paciente se representa como una línea y cada eje vertical corresponde a una variable estandarizada ($Z$). La separación visual por color sugiere perfiles relativamente consistentes entre M y B.
 
 \begin{figure}[H]
 \centering
@@ -343,7 +343,7 @@ La covarianza refleja cómo varían conjuntamente pares de variables en unidades
 \noindent\textbf{Lectura clínica:} La covarianza no normalizada se ve influida fuertemente por la escala. Por eso, variables de tamaño tienden a dominar la dispersión conjunta. En términos prácticos: para comparar ``peso'' relativo de variables y evitar que una sola escala gobierne el análisis, la estandarización es un paso metodológico esencial.
 
 
-\section{Interpretación global (la más importante)}
+\section{Interpretación global}
 
 \subsection{Cálculos de soporte}
 Para sustentar la interpretación global, se resumen (i) correlaciones altas, (ii) tamaño de efecto (Cohen's $d$) y (iii) estructura por PCA.
@@ -387,29 +387,33 @@ Para sustentar la interpretación global, se resumen (i) correlaciones altas, (i
     \item \textbf{Diferencias por tamaño e irregularidad}: En las Figuras \ref{fig:univar_radius} y \ref{fig:univar_concave_points} se aprecia que variables asociadas a tamaño y a irregularidad del contorno tienden a separarse por diagnóstico.
     \item \textbf{Redundancia (multicolinealidad)}: La Tabla \ref{tab:cor_altas} y la Figura \ref{fig:corr_matrix} muestran pares de variables altamente correlacionadas, indicando que varias métricas miden aspectos relacionados.
     \item \textbf{Separación multivariada}: En coordenadas paralelas (Figura \ref{fig:parallel_coords}) se observan perfiles más altos simultáneamente en varios ejes para una de las clases, lo cual sugiere que el diagnóstico no depende de una sola variable aislada, sino de un patrón conjunto.
+    \item \textbf{Consistencia con tamaño de efecto}: La Tabla \ref{tab:efectos} confirma que las variables con mejor separación visual también presentan mayores diferencias estandarizadas entre grupos.
+    \item \textbf{Patrón dominante en PCA}: Según las Tablas \ref{tab:pca_var} y \ref{tab:pc1_loadings}, una parte importante de la variabilidad se concentra en pocas componentes, dominadas por variables de tamaño e irregularidad.
+    \item \textbf{Solapamiento en variables complementarias}: Métricas como simetría y dimensión fractal muestran mayor mezcla entre clases, por lo que funcionan mejor como apoyo dentro de un enfoque multivariado.
 \end{itemize}
 
 \subsection{¿Qué variables dominan el comportamiento?}
 La Tabla \ref{tab:efectos} resume las variables con mayor diferencia estandarizada entre M y B (Cohen's $d$). En este dataset, variables de \textbf{irregularidad} (p. ej., \texttt{concave.points\_mean} y \texttt{concavity\_mean}) y de \textbf{tamaño} (p. ej., \texttt{radius\_mean}/\texttt{area\_mean}) aparecen entre las más dominantes.
 
-También teniendo en cuenta que al estar presente la variable \texttt{compactness_mean} le brinda mayor orden a la distribución de los datos, permitiendo aumentar la probabilidad de diagnostico. Un ejemplo de ello es en la \textbf{Gráfica 2.} que presenta una mayor separación visula entre los grupos, y teniendo en cuenta que las variables utilizadas (radius_mean vs compactness_mean vs concavity_mean) tienen una alta correlación entre sí como se indica en la \textbf{Figura 9}.
+Además, la presencia de \texttt{compactness\_mean} tiende a ordenar mejor la distribución en el espacio de variables y mejora la separación visual entre grupos. Esto se aprecia en la \textbf{Gráfica 2}, donde la combinación \texttt{radius\_mean}, \texttt{compactness\_mean} y \texttt{concavity\_mean} muestra un contraste más claro entre diagnósticos. Esta lectura es coherente con la alta asociación entre \texttt{compactness\_mean} y \texttt{concavity\_mean}, reportada en la Tabla \ref{tab:stats_3d}.
 
 Adicionalmente, el PCA (Tablas \ref{tab:pca_var} y \ref{tab:pc1_loadings}) muestra que la \textbf{PC1 explica aproximadamente el 55\%} de la variabilidad y la \textbf{PC2 alrededor del 25\%} (casi \textbf{80\% acumulado} en las dos primeras componentes). Las mayores cargas (en valor absoluto) se concentran en variables de irregularidad y tamaño, lo que sugiere que ese es el eje dominante del comportamiento global.
+
+En términos prácticos, esto indica que las variables de tamaño e irregularidad son las que más pesan al momento de diferenciar los casos en este conjunto de datos. Aun así, conviene mantener una lectura conjunta de las variables y no basar la interpretación en una sola métrica, porque todavía existe solapamiento entre clases en algunos ejes.
 
 \subsection{¿Qué conclusiones se pueden obtener?}
 \begin{itemize}
     \item El dataset contiene \textbf{señal discriminante} para diferenciar B vs M de forma descriptiva: la separación es visible en varias variables y en combinaciones multivariadas.
     \item Antes de construir modelos predictivos, es recomendable controlar colinealidad (Tabla \ref{tab:cor_altas}) mediante selección de variables o reducción dimensional.
     \item Para personal clínico, la lectura principal es: en este dataset, valores más altos en métricas de tamaño e irregularidad se asocian a la clase M; no obstante, existe solapamiento en variables como simetría y dimensión fractal, por lo cual el diagnóstico no se explica por un único umbral simple.
+    \item El EDA permite priorizar variables con mayor aporte para etapas posteriores de modelado, especialmente aquellas relacionadas con \texttt{concavity\_mean}, \texttt{concave.points\_mean}, \texttt{radius\_mean} y \texttt{area\_mean}.
+    \item Aunque los patrones son claros, este análisis sigue siendo descriptivo; por tanto, cualquier uso predictivo requiere validación formal con partición de datos y métricas de generalización.
+    \item En términos aplicados, el principal valor de estos hallazgos es servir como apoyo a la valoración clínica, no como reemplazo del criterio médico ni de los estudios diagnósticos confirmatorios.
 \end{itemize}
 
 \subsection{¿Qué tipo de problema se puede resolver con estos datos?}
 El planteamiento natural es un problema de \textbf{clasificación binaria supervisada}: predecir \texttt{diagnosis} (B vs M) a partir de las variables \texttt{\_mean}.\\
-Modelos típicos: regresión logística, SVM, Random Forest, gradient boosting. La evaluación debe reportar métricas clínicamente relevantes como AUC, sensibilidad, especificidad y matriz de confusión (sin asumir desempeño hasta entrenar/validar).
-
-\subsection*{Cierre profesional}
-\addcontentsline{toc}{subsection}{Cierre profesional}
-En síntesis, el EDA evidencia estructura multivariada consistente, relaciones fuertes entre variables y un conjunto reducido de métricas con alto contraste entre diagnósticos. El siguiente paso recomendado es entrenar modelos supervisados con estandarización, control de colinealidad y validación cruzada, priorizando interpretabilidad.
+Modelos típicos: regresión logística, SVM, Random Forest y gradient boosting. La evaluación debe reportar métricas clínicamente relevantes como AUC, sensibilidad, especificidad y matriz de confusión (sin asumir desempeño antes de entrenar y validar).
 
 \subsection{Bibliografía}
 \begin{itemize}
