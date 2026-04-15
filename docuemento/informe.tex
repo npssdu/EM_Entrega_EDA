@@ -64,7 +64,9 @@
 \section*{Introducción y propósito}
 \addcontentsline{toc}{section}{Introducción y propósito}
 
-Existe alguna problemática real en la \textbf{detección temprana de cáncer}, este debido a diversas razones, entre ellas está la necesidad del rápido diagnóstico del mismo, por diversas razones, no siempre médicas, en algunos casos miedo por ciertos procedimientos como lo son las biopsias, muchas personas dejan de hacerse exámenes porque no lo ven "necesario", y, además de ello, hay que tener en cuenta \textbf{los costos que implican realizar un procedimiento médico invasivo}. Con el fin de poder acelerar el diagnóstico de diversos tipos de cáncer se puede \textbf{mejorar el análisis de imágenes diagnósticas}, y ya que hablamos de tejidos blandos, hablaríamos de \textbf{ecografías} principalmente, las cuales nos \textbf{permiten analizar diversas variables} (de las cuales hablaremos en este informe), las cuales nos dan datos \textbf{cuantificables} a los cuales se les pueden aplicar estadística para \textbf{determinar su funcionalidad y efectividad para un mejor diagnóstico ante la sospecha de un cáncer}, de tal manera poder estimular la prevención y acción a tiempo.
+Existe alguna problemática real en la \textbf{detección temprana de cáncer}, este debido a diversas razones, entre ellas está la necesidad del rápido diagnóstico del mismo, por diversas razones, no siempre médicas, en algunos casos miedo por ciertos procedimientos como lo son las biopsias, muchas personas dejan de hacerse exámenes porque no lo ven "necesario", y, además de ello, hay que tener en cuenta \textbf{los costos que implican realizar un procedimiento médico invasivo}. Con el fin de poder acelerar el diagnóstico de diversos tipos de cáncer se puede \textbf{mejorar el análisis de imágenes diagnósticas}, y ya que hablamos de tejidos blandos, hablaríamos de \textbf{ecografías} principalmente, las cuales nos \textbf{permiten analizar diversas variables} (de las cuales hablaremos en este informe), las que nos dan datos \textbf{cuantificables} y se les pueden aplicar estadística para \textbf{determinar su funcionalidad y efectividad para un mejor diagnóstico ante la sospecha de un cáncer}, de tal manera poder estimular la prevención y acción a tiempo.
+
+En la literatura se puede evidenciar como la estadística multidimensional se vuelve una gran aliada en casos medicos, tanto en diagnosticos, como para estudios estadisticos aplicados en la toma de decisiones para procedimientos medicos, teniendo en cuenta los estudios estadisticos permite determinar el procedimiento con mayor probabilidad de éxito, ya que se estudian variables, como el sexo, la edad, el tipo de cancer, la ubicación y otras variables que se tienen en cuenta para el diagnostico y tratamiento en distintas etapas del cáncer (variables que no necesariemtne se toman en cuenta en este dataSet ya que son estudios distintos).
 
 Este informe presenta un \textbf{análisis exploratorio de datos (EDA)} orientado a personal médico, con el objetivo de describir \textbf{patrones} y \textbf{diferencias} entre diagnósticos \textbf{benignos (B)} y \textbf{malignos (M)} a partir de variables cuantitativas del núcleo celular.
 
@@ -390,7 +392,7 @@ Para sustentar la interpretación global, se resumen (i) correlaciones altas, (i
 \subsection{¿Qué variables dominan el comportamiento?}
 La Tabla \ref{tab:efectos} resume las variables con mayor diferencia estandarizada entre M y B (Cohen's $d$). En este dataset, variables de \textbf{irregularidad} (p. ej., \texttt{concave.points\_mean} y \texttt{concavity\_mean}) y de \textbf{tamaño} (p. ej., \texttt{radius\_mean}/\texttt{area\_mean}) aparecen entre las más dominantes.
 
-También teniendo en cuenta que al estar presente la variable \texttt{compactness_mean} le brinda mayor orden a la distribución de los datos, permitiendo aumentar la probabilidad de diagnostico. Un ejemplo de ello es en la \textbf{Gráfica 2.} que presenta
+También teniendo en cuenta que al estar presente la variable \texttt{compactness_mean} le brinda mayor orden a la distribución de los datos, permitiendo aumentar la probabilidad de diagnostico. Un ejemplo de ello es en la \textbf{Gráfica 2.} que presenta una mayor separación visula entre los grupos, y teniendo en cuenta que las variables utilizadas (radius_mean vs compactness_mean vs concavity_mean) tienen una alta correlación entre sí como se indica en la \textbf{Figura 9}.
 
 Adicionalmente, el PCA (Tablas \ref{tab:pca_var} y \ref{tab:pc1_loadings}) muestra que la \textbf{PC1 explica aproximadamente el 55\%} de la variabilidad y la \textbf{PC2 alrededor del 25\%} (casi \textbf{80\% acumulado} en las dos primeras componentes). Las mayores cargas (en valor absoluto) se concentran en variables de irregularidad y tamaño, lo que sugiere que ese es el eje dominante del comportamiento global.
 
@@ -408,5 +410,13 @@ Modelos típicos: regresión logística, SVM, Random Forest, gradient boosting. 
 \subsection*{Cierre profesional}
 \addcontentsline{toc}{subsection}{Cierre profesional}
 En síntesis, el EDA evidencia estructura multivariada consistente, relaciones fuertes entre variables y un conjunto reducido de métricas con alto contraste entre diagnósticos. El siguiente paso recomendado es entrenar modelos supervisados con estandarización, control de colinealidad y validación cruzada, priorizando interpretabilidad.
+
+\subsection{Bibliografía}
+\begin{itemize}
+	\item Ibrahim, S., Nazir, S., & Velastin, S. A. (2021). Feature selection using correlation analysis and principal component analysis for accurate breast cancer diagnosis. Journal of Imaging, 7(11), 225. https://doi.org/10.3390/jimaging7110225
+	\item Peña Vahos, J. C. (2022). Despliegue de un modelo de clasificación de tumores de cáncer de mama, reto Kaggle [Trabajo de especialización]. Universidad de Antioquia, Medellín, Colombia.
+	\item Liu C, Ma M, Zhou X, Zhang Z, Guo Y. Multivariate analysis of prognostic factors in patients with lung cancer. Front Oncol. 2023 Feb 22;13:1022862. doi: 10.3389/fonc.2023.1022862. PMID: 36910626; PMCID: PMC9993855.
+	\item Archivos suministrados en la clase de Estadística multidimensional, Grupo 81, I-2026, Jhon Alejandro Varon Robayo, Universidad Distrital Francisco José de Caldas.
+\end{itemize}
 
 \end{document}
